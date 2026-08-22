@@ -379,11 +379,14 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
     mode,
     kvCacheQuantization = 'fp16',
     loraRank = 16,
-    loraTrainableFraction = 0.012, // ~1.2% of model parameters
+    loraTrainableFraction,
     gradientCheckpointing = true,
     cudaOverheadBufferGb = 1.5,
     safetyMarginPct = 0.15,
   } = config;
+
+  // Derive trainable fraction based on loraRank (e.g. rank 16 ≈ 1.2%, rank 64 ≈ 4.8%)
+  const effectiveLoraFraction = loraTrainableFraction ?? (loraRank / 16) * 0.012;
 
   const arch = {
     layers: config.layers ?? estimateArchitecture(parametersB).layers,
@@ -424,19 +427,18 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
     gradientsGb = 0;
     trainableParamsB = 0;
   } else if (mode === 'qlora') {
-    // QLoRA: Base weights in 4-bit, Adapter parameters ~1.2%
-    trainableParamsB = parametersB * loraTrainableFraction;
+    // QLoRA: Base weights in 4-bit, Adapter parameters
+    trainableParamsB = parametersB * effectiveLoraFraction;
     const trainableParamsCount = trainableParamsB * 1e9;
 
     // Gradients in FP16/BF16 (2 bytes/param) for adapters only
     gradientsGb = (trainableParamsCount * 2) / (1024 * 1024 * 1024);
 
     // AdamW optimizer for adapters (First & Second moments in FP32 = 8 bytes + FP32 Master weights = 4 bytes = 12 bytes/param)
-    // Or 8-bit AdamW = 2 bytes/param. We calculate standard AdamW 8 bytes state + 4 bytes master = 12 bytes:
     optimizerGb = (trainableParamsCount * 12) / (1024 * 1024 * 1024);
   } else if (mode === 'lora_16bit') {
-    // Standard LoRA: Base weights in 16-bit, Adapters ~1.2%
-    trainableParamsB = parametersB * loraTrainableFraction;
+    // Standard LoRA: Base weights in 16-bit, Adapters
+    trainableParamsB = parametersB * effectiveLoraFraction;
     const trainableParamsCount = trainableParamsB * 1e9;
 
     gradientsGb = (trainableParamsCount * 2) / (1024 * 1024 * 1024);

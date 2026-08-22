@@ -8,15 +8,9 @@ import {
   type ModelPreset,
 } from '../../lib/calculations';
 import {
-  Sparkles,
-  Share2,
   Copy,
   Check,
   Terminal,
-  Server,
-  Layers,
-  Zap,
-  Bookmark,
 } from 'lucide-react';
 
 export const GpuCalcApp: React.FC = () => {
@@ -77,7 +71,6 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
   // Generate vLLM / Ollama command snippet
   const cliSnippet = useMemo(() => {
     if (config.mode === 'inference') {
-      const isQuant = config.quantization === 'int4' || config.quantization === 'fp8';
       const quantFlag =
         config.quantization === 'int4'
           ? '--quantization awq'

@@ -315,6 +315,19 @@ html.light ::-webkit-scrollbar-track {
   background: rgba(99, 102, 241, 0.7);
 }
 
+/* Background Ambient Grid Pattern for Dark & Light modes */
+.bg-grid-pattern {
+  background-image: linear-gradient(to right, rgba(99, 102, 241, 0.12) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(99, 102, 241, 0.12) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+html.light .bg-grid-pattern {
+  background-image: linear-gradient(to right, rgba(15, 23, 42, 0.08) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
 /* Code block font overrides */
 code, pre, kbd {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

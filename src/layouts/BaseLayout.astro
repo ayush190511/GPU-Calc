@@ -97,9 +97,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
   <body class="font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
     <!-- Background Ambient Glow & Grid -->
     <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-tr from-indigo-600/15 via-violet-600/10 to-cyan-500/10 blur-[130px] rounded-full"></div>
-      <div class="absolute top-[800px] -left-40 w-[600px] h-[400px] bg-purple-600/10 blur-[120px] rounded-full"></div>
-      <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b10_1px,transparent_1px),linear-gradient(to_bottom,#1e293b10_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-tr from-indigo-600/20 via-violet-600/15 to-cyan-500/15 blur-[130px] rounded-full"></div>
+      <div class="absolute top-[800px] -left-40 w-[600px] h-[400px] bg-purple-600/15 blur-[120px] rounded-full"></div>
+      <div class="absolute inset-0 bg-grid-pattern"></div>
     </div>
 
     <!-- Navigation Header -->

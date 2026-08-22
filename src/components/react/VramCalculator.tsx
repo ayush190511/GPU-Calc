@@ -2,8 +2,6 @@ import React from 'react';
 import {
   PRESET_MODELS,
   QUANT_BYTES,
-  KV_QUANT_BYTES,
-  calculateVramRequirements,
   estimateInferenceThroughput,
   type VramConfig,
   type VramBreakdown,
@@ -19,7 +17,6 @@ import {
   Zap,
   Sliders,
   HardDrive,
-  Info,
   ShieldCheck,
   Activity,
   AlertTriangle,
