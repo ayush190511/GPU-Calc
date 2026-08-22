@@ -487,6 +487,16 @@ html.light .bg-grid-pattern {
   background-size: 32px 32px;
 }
 
+/* Smooth Scroll & Offset for Sticky Header */
+html {
+  scroll-padding-top: 6rem;
+}
+
+section[id],
+div[id] {
+  scroll-margin-top: 6rem;
+}
+
 /* Code block font overrides */
 code, pre, kbd {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
