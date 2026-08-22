@@ -144,7 +144,7 @@ const FAQS: FaqItem[] = [
 ];
 
 export const FaqSection: React.FC = () => {
-  const [openIds, setOpenIds] = useState<string[]>(['calculate-kv-cache', 'lora-qlora-vram-savings']);
+  const [openIds, setOpenIds] = useState<string[]>([]);
 
   const toggleOpen = (id: string) => {
     setOpenIds((prev) =>
