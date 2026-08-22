@@ -489,12 +489,12 @@ html.light .bg-grid-pattern {
 
 /* Smooth Scroll & Offset for Sticky Header */
 html {
-  scroll-padding-top: 6rem;
+  scroll-padding-top: 4.5rem;
 }
 
 section[id],
 div[id] {
-  scroll-margin-top: 6rem;
+  scroll-margin-top: 4.5rem;
 }
 
 /* Code block font overrides */
