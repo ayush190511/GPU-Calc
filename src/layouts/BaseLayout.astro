@@ -82,7 +82,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "GPUCalc",
+        "name": "GPUCalc — AI Model VRAM & Cloud GPU Cost Estimator",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "All",
         "offers": {
@@ -90,7 +90,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
           "price": "0",
           "priceCurrency": "USD"
         },
-        "description": "Interactive AI Model VRAM & Cloud GPU Cost Estimation Engine."
+        "description": "Deterministic VRAM sizing engine and live multi-cloud GPU pricing calculator for LLMs, Diffusion models, and fine-tuning across RunPod, Lambda Labs, Vast.ai, AWS, and GCP.",
+        "featureList": [
+          "Model weights calculation across FP32, FP16, FP8, and INT4 precision",
+          "KV-cache context scaling with Grouped Query Attention (GQA)",
+          "AdamW optimizer and gradient memory calculation for QLoRA and LoRA",
+          "Real-time spot and on-demand cloud pricing comparison"
+        ]
       }
     </script>
   </head>
@@ -202,7 +208,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
     <!-- Footer -->
     <footer class="border-t border-slate-800/80 bg-slate-950/90 text-xs text-slate-400 mt-20 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-8">
           <div class="space-y-3 sm:col-span-2 md:col-span-2">
             <div class="flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shadow-indigo-600/30">
@@ -213,13 +219,25 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
             <p class="text-slate-400 text-xs max-w-md leading-relaxed">
               The high-accuracy GPU memory sizing engine and live multi-cloud cost calculator for AI engineers, researchers, and infra architects.
             </p>
-            <div class="flex flex-wrap items-center gap-3 text-slate-500 text-xs font-mono pt-1">
+            <div class="flex flex-wrap items-center gap-2 text-slate-500 text-xs font-mono pt-1">
               <span>NVIDIA Blackwell B200</span>
               <span>•</span>
               <span>Hopper H100/H200</span>
               <span>•</span>
-              <span>Ada Lovelace</span>
+              <span>Ada RTX 4090 / 5090</span>
             </div>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-200 mb-3 uppercase tracking-wider text-[11px]">Model Sizers</h4>
+            <ul class="space-y-2 text-xs">
+              <li><a href="/calculator/llama-3-3-70b" class="hover:text-indigo-400 transition-colors">Llama 3.3 70B VRAM</a></li>
+              <li><a href="/calculator/deepseek-r1-671b" class="hover:text-indigo-400 transition-colors">DeepSeek R1 (671B MoE)</a></li>
+              <li><a href="/calculator/qwen-2-5-32b" class="hover:text-indigo-400 transition-colors">Qwen 2.5 32B Sizer</a></li>
+              <li><a href="/calculator/mistral-large-2-123b" class="hover:text-indigo-400 transition-colors">Mistral Large 2 (123B)</a></li>
+              <li><a href="/calculator/gemma-2-27b" class="hover:text-indigo-400 transition-colors">Gemma 2 27B Sizer</a></li>
+              <li><a href="/calculator/flux-1-schnell" class="hover:text-indigo-400 transition-colors">FLUX.1 Diffusion (12B)</a></li>
+            </ul>
           </div>
 
           <div>
@@ -227,7 +245,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
             <ul class="space-y-2 text-xs">
               <li><a href="/#calculator" class="hover:text-indigo-400 transition-colors">VRAM Sizer Calculator</a></li>
               <li><a href="/#pricing-matrix" class="hover:text-indigo-400 transition-colors">Cloud GPU Price Matrix</a></li>
-              <li><a href="/#methodology" class="hover:text-indigo-400 transition-colors">Methodology & Formulas</a></li>
+              <li><a href="/#faq" class="hover:text-indigo-400 transition-colors">Technical FAQ & Math</a></li>
+              <li><a href="/#methodology" class="hover:text-indigo-400 transition-colors">Formulas & Benchmarks</a></li>
               <li><a href="/about" class="hover:text-indigo-400 transition-colors">About GPUCalc</a></li>
               <li><a href="/contact" class="hover:text-indigo-400 transition-colors">Contact & Feedback</a></li>
               <li><a href="/privacy" class="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>

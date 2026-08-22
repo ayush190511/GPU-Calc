@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { VramCalculator } from './VramCalculator';
 import { PricingTable } from './PricingTable';
+import { FaqSection } from './FaqSection';
 import {
   PRESET_MODELS,
   calculateVramRequirements,
@@ -13,16 +14,30 @@ import {
   Terminal,
 } from 'lucide-react';
 
-export const GpuCalcApp: React.FC = () => {
-  // Default to Llama 3.3 70B
-  const defaultPreset = PRESET_MODELS[0];
+interface GpuCalcAppProps {
+  initialModelId?: string;
+  hideFaq?: boolean;
+}
+
+export const GpuCalcApp: React.FC<GpuCalcAppProps> = ({
+  initialModelId,
+  hideFaq = false,
+}) => {
+  // Find initial preset or fallback to Llama 3.3 70B
+  const defaultPreset = useMemo(() => {
+    if (initialModelId) {
+      const found = PRESET_MODELS.find((p) => p.id === initialModelId || p.slug === initialModelId);
+      if (found) return found;
+    }
+    return PRESET_MODELS[0];
+  }, [initialModelId]);
 
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(defaultPreset.id);
 
   const [config, setConfig] = useState<VramConfig>({
     parametersB: defaultPreset.parametersB,
-    quantization: 'int4',
-    contextLength: 8192,
+    quantization: defaultPreset.parametersB >= 70 ? 'int4' : 'fp16',
+    contextLength: defaultPreset.defaultContext || 8192,
     batchSize: 1,
     mode: 'inference',
     kvCacheQuantization: 'fp16',
@@ -37,6 +52,26 @@ export const GpuCalcApp: React.FC = () => {
     headDim: defaultPreset.headDim,
     hiddenDim: defaultPreset.hiddenDim,
   });
+
+  useEffect(() => {
+    if (initialModelId) {
+      const match = PRESET_MODELS.find((p) => p.id === initialModelId || p.slug === initialModelId);
+      if (match) {
+        setSelectedPresetId(match.id);
+        setConfig((prev) => ({
+          ...prev,
+          parametersB: match.parametersB,
+          quantization: match.parametersB >= 70 ? 'int4' : 'fp16',
+          contextLength: match.defaultContext || 8192,
+          layers: match.layers,
+          heads: match.heads,
+          kvHeads: match.kvHeads,
+          headDim: match.headDim,
+          hiddenDim: match.hiddenDim,
+        }));
+      }
+    }
+  }, [initialModelId]);
 
   const [copied, setCopied] = useState(false);
   const [showCliSnippet, setShowCliSnippet] = useState(false);
@@ -70,6 +105,9 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
 
   // Generate vLLM / Ollama command snippet
   const cliSnippet = useMemo(() => {
+    const modelName = selectedPresetId
+      ? PRESET_MODELS.find((p) => p.id === selectedPresetId)?.name || 'custom-model'
+      : 'custom-model';
     if (config.mode === 'inference') {
       const quantFlag =
         config.quantization === 'int4'
@@ -81,18 +119,18 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
         config.kvCacheQuantization === 'fp8'
           ? '--kv-cache-dtype fp8'
           : '';
-      return `vllm serve meta-llama/Llama-3.3-70B-Instruct \\
+      return `vllm serve "${modelName}" \\
   --max-model-len ${config.contextLength} \\
   --gpu-memory-utilization 0.90 ${quantFlag} ${kvFlag}`;
     } else {
       return `accelerate launch train.py \\
-  --model_name_or_path meta-llama/Llama-3.3-70B-Instruct \\
+  --model_name_or_path "${modelName}" \\
   --max_seq_length ${config.contextLength} \\
   --per_device_train_batch_size ${config.batchSize} \\
   --gradient_checkpointing True \\
   --use_qlora True`;
     }
-  }, [config]);
+  }, [config, selectedPresetId]);
 
   return (
     <div className="space-y-10">
@@ -101,14 +139,14 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-xs font-semibold text-slate-300">
-            Interactive VRAM & Pricing Engine Active
+            Interactive VRAM Sizer & Live Cloud Pricing Matrix Active
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCliSnippet(!showCliSnippet)}
-            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-medium flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Terminal className="w-3.5 h-3.5 text-cyan-400" />
             <span>{showCliSnippet ? 'Hide CLI' : 'Deploy Command'}</span>
@@ -116,7 +154,7 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
 
           <button
             onClick={handleCopySummary}
-            className="px-3 py-1.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm shadow-indigo-600/20"
+            className="px-3 py-1.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm shadow-indigo-600/20 cursor-pointer"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'Copied Specs!' : 'Copy Summary'}</span>
@@ -135,7 +173,7 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
               }}
-              className="hover:text-white flex items-center gap-1"
+              className="hover:text-white flex items-center gap-1 cursor-pointer"
             >
               <Copy className="w-3 h-3" /> Copy
             </button>
@@ -159,6 +197,13 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
       <div id="pricing-matrix" className="pt-2">
         <PricingTable requiredVramGb={breakdown.totalVramGb} />
       </div>
+
+      {/* Section 3: Technical FAQ Accordion */}
+      {!hideFaq && (
+        <div id="faq" className="pt-6">
+          <FaqSection />
+        </div>
+      )}
     </div>
   );
 };

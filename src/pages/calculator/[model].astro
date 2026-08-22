@@ -1,0 +1,385 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GpuCalcApp from '../../components/react/GpuCalcApp';
+import presetModelsData from '../../data/preset-models.json';
+import {
+  calculateVramRequirements,
+  QUANT_BYTES,
+  calculateKvCacheGb,
+  type ModelPreset,
+  type QuantizationType,
+} from '../../lib/calculations';
+
+export async function getStaticPaths() {
+  const models = presetModelsData as ModelPreset[];
+  return models.map((model) => ({
+    params: { model: model.slug || model.id },
+    props: { model },
+  }));
+}
+
+interface Props {
+  model: ModelPreset;
+}
+
+const { model } = Astro.props;
+
+// Pre-calculate standard memory footprints for SEO tables
+const fp16Calc = calculateVramRequirements({
+  parametersB: model.parametersB,
+  quantization: 'fp16',
+  contextLength: model.defaultContext || 8192,
+  batchSize: 1,
+  mode: 'inference',
+  kvCacheQuantization: 'fp16',
+  layers: model.layers,
+  heads: model.heads,
+  kvHeads: model.kvHeads,
+  headDim: model.headDim,
+  hiddenDim: model.hiddenDim,
+});
+
+const int4Calc = calculateVramRequirements({
+  parametersB: model.parametersB,
+  quantization: 'int4',
+  contextLength: model.defaultContext || 8192,
+  batchSize: 1,
+  mode: 'inference',
+  kvCacheQuantization: 'fp16',
+  layers: model.layers,
+  heads: model.heads,
+  kvHeads: model.kvHeads,
+  headDim: model.headDim,
+  hiddenDim: model.hiddenDim,
+});
+
+const qloraCalc = calculateVramRequirements({
+  parametersB: model.parametersB,
+  quantization: 'int4',
+  contextLength: Math.min(model.defaultContext || 8192, 4096),
+  batchSize: 1,
+  mode: 'qlora',
+  kvCacheQuantization: 'fp16',
+  layers: model.layers,
+  heads: model.heads,
+  kvHeads: model.kvHeads,
+  headDim: model.headDim,
+  hiddenDim: model.hiddenDim,
+});
+
+const fullTuneCalc = calculateVramRequirements({
+  parametersB: model.parametersB,
+  quantization: 'bf16',
+  contextLength: Math.min(model.defaultContext || 8192, 4096),
+  batchSize: 1,
+  mode: 'full_finetune_16bit',
+  kvCacheQuantization: 'fp16',
+  layers: model.layers,
+  heads: model.heads,
+  kvHeads: model.kvHeads,
+  headDim: model.headDim,
+  hiddenDim: model.hiddenDim,
+});
+
+// Calculate precision weight table
+function getGpuFitBadge(weightGb: number) {
+  if (weightGb <= 24) return { text: '✓ Fits on 1x RTX 4090 (24GB)', color: 'text-emerald-400' };
+  if (weightGb <= 32) return { text: '✓ Fits on 1x RTX 5090 (32GB)', color: 'text-cyan-400' };
+  if (weightGb <= 48) return { text: '✓ Fits on 1x L40S / RTX 6000 (48GB)', color: 'text-violet-400' };
+  return { text: 'Requires Multi-GPU / A100 (80GB)', color: 'text-amber-400' };
+}
+
+const precisions: QuantizationType[] = ['fp32', 'fp16', 'fp8', 'int8', 'int4', 'gguf_q4_k_m'];
+const weightBreakdown = precisions.map((p) => {
+  const bytes = QUANT_BYTES[p].bytes;
+  const gb = (model.parametersB * 1e9 * bytes) / (1024 * 1024 * 1024);
+  const weightGb = Number(gb.toFixed(2));
+  return {
+    precision: p,
+    label: QUANT_BYTES[p].label,
+    bytesPerParam: bytes,
+    weightGb,
+    badge: getGpuFitBadge(weightGb),
+  };
+});
+
+// Calculate context scaling
+const contextSteps = [4096, 8192, 16384, 32768, 65536, 131072].filter((c) => c <= model.maxContext);
+const kvScaling = contextSteps.map((ctx) => {
+  const fp16Kv = calculateKvCacheGb(model.layers, model.kvHeads, model.headDim, ctx, 1, 2.0);
+  const fp8Kv = calculateKvCacheGb(model.layers, model.kvHeads, model.headDim, ctx, 1, 1.0);
+  return {
+    context: ctx,
+    fp16Gb: Number(fp16Kv.toFixed(2)),
+    fp8Gb: Number(fp8Kv.toFixed(2)),
+  };
+});
+
+// Related models for internal linking
+const allModels = presetModelsData as ModelPreset[];
+const relatedModels = allModels
+  .filter((m) => m.id !== model.id)
+  .slice(0, 4);
+
+// Dynamic SEO metadata
+const pageTitle = `${model.name} VRAM Calculator & Cloud GPU Requirements`;
+const pageDescription = `Calculate exact VRAM requirements for ${model.name} (${model.parametersB}B). Compare memory footprints for FP16, FP8, INT4, QLoRA, and cloud pricing on RTX 4090, A100, and H100.`;
+
+// JSON-LD Structured Data
+const jsonLdFaq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  'mainEntity': [
+    {
+      '@type': 'Question',
+      'name': `How much VRAM is required to run ${model.name}?`,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': `To run ${model.name} in FP16 precision, you need approximately ${fp16Calc.totalVramGb} GB of VRAM. When quantized to INT4 / AWQ, the memory footprint decreases to ~${int4Calc.totalVramGb} GB, allowing it to fit on ${model.minGpuInference}.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      'name': `Can an RTX 4090 (24GB) run ${model.name}?`,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': int4Calc.totalVramGb <= 24
+          ? `Yes, ${model.name} fits on an RTX 4090 (24GB) when quantized to INT4 / AWQ or GGUF Q4_K_M (requiring ~${int4Calc.totalVramGb} GB VRAM).`
+          : `An unquantized or dense ${model.name} requires ${fp16Calc.totalVramGb} GB in FP16, which exceeds a single 24GB GPU. Consider multi-GPU tensor parallelism or aggressive 3-bit / 4-bit quantization.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      'name': `How much VRAM is needed to fine-tune ${model.name} with QLoRA?`,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': `Fine-tuning ${model.name} using QLoRA 4-bit with gradient checkpointing requires approximately ${qloraCalc.recommendedVramGb} GB of VRAM, compared to >${fullTuneCalc.recommendedVramGb} GB for standard full fine-tuning.`,
+      },
+    },
+  ],
+};
+
+const jsonLdBreadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  'itemListElement': [
+    {
+      '@type': 'ListItem',
+      'position': 1,
+      'name': 'Home',
+      'item': 'https://gpucalc.ai/',
+    },
+    {
+      '@type': 'ListItem',
+      'position': 2,
+      'name': 'Model Calculators',
+      'item': 'https://gpucalc.ai/#calculator',
+    },
+    {
+      '@type': 'ListItem',
+      'position': 3,
+      'name': model.name,
+      'item': `https://gpucalc.ai/calculator/${model.slug || model.id}`,
+    },
+  ],
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <!-- JSON-LD Structured Data Schema -->
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLdFaq)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLdBreadcrumbs)} />
+
+  <!-- Breadcrumbs -->
+  <nav class="flex items-center gap-2 text-xs text-slate-400 mb-6 font-medium">
+    <a href="/" class="hover:text-indigo-400 transition-colors">Home</a>
+    <span>/</span>
+    <a href="/#calculator" class="hover:text-indigo-400 transition-colors">Calculators</a>
+    <span>/</span>
+    <span class="text-slate-100 font-semibold">{model.name}</span>
+  </nav>
+
+  <!-- Hero Header tailored to Model -->
+  <section class="space-y-6 pb-8 border-b border-slate-800">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold">
+        {model.family}
+      </span>
+      {model.isMoe && (
+        <span class="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 text-xs font-mono font-semibold">
+          MoE Sparse Architecture
+        </span>
+      )}
+      <span class="text-xs text-slate-400 font-mono">
+        by {model.developer || 'Open-Source'}
+      </span>
+    </div>
+
+    <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+      {model.name} <span class="text-indigo-400">VRAM & Cloud GPU Sizer</span>
+    </h1>
+
+    <p class="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
+      {model.description} Use this interactive calculator to compute exact GPU memory requirements across <b>FP16, FP8, INT4, QLoRA, and Full Fine-Tuning</b>.
+    </p>
+
+    <!-- Quick Answers High-Intent Summary Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-md space-y-1">
+        <span class="text-[11px] text-slate-400 font-medium block">Inference VRAM (INT4 AWQ)</span>
+        <div class="text-2xl font-bold font-mono text-emerald-400">
+          ~{int4Calc.totalVramGb} GB
+        </div>
+        <span class="text-[11px] text-slate-400">{model.minGpuInference}</span>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-md space-y-1">
+        <span class="text-[11px] text-slate-400 font-medium block">Native Precision (FP16 / BF16)</span>
+        <div class="text-2xl font-bold font-mono text-cyan-400">
+          ~{fp16Calc.totalVramGb} GB
+        </div>
+        <span class="text-[11px] text-slate-400">{model.parametersB >= 70 ? 'Requires 2x-4x 80GB GPUs' : 'Fits on 1x 24GB GPU'}</span>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-md space-y-1">
+        <span class="text-[11px] text-slate-400 font-medium block">QLoRA 4-bit Training</span>
+        <div class="text-2xl font-bold font-mono text-violet-400">
+          ~{qloraCalc.recommendedVramGb} GB
+        </div>
+        <span class="text-[11px] text-slate-400">{model.minGpuTraining}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Calculator Preloaded with this Model -->
+  <section class="my-10">
+    <GpuCalcApp client:load initialModelId={model.id} />
+  </section>
+
+  <!-- Architectural Specifications & Mathematical Analysis -->
+  <section class="my-16 space-y-10">
+    <div class="text-left">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">
+        {model.name} Architectural Specs & Memory Scaling
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-400 mt-1">
+        Detailed breakdown of transformer parameters, attention mechanisms, and KV-cache expansion.
+      </p>
+    </div>
+
+    <!-- Specs Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-xs">
+        <span class="text-slate-400 block text-[11px]">Total Parameters</span>
+        <span class="text-base font-bold text-slate-100">{model.parametersB} Billion</span>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-xs">
+        <span class="text-slate-400 block text-[11px]">Transformer Layers</span>
+        <span class="text-base font-bold text-indigo-400">{model.layers} Layers</span>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-xs">
+        <span class="text-slate-400 block text-[11px]">Attention Heads / GQA</span>
+        <span class="text-base font-bold text-cyan-400">{model.heads} Q / {model.kvHeads} KV ({model.heads / model.kvHeads}:1)</span>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-xs">
+        <span class="text-slate-400 block text-[11px]">Max Native Context</span>
+        <span class="text-base font-bold text-emerald-400">{model.maxContext.toLocaleString()} Tokens</span>
+      </div>
+    </div>
+
+    <!-- Weight Precision Comparison Table -->
+    <div class="space-y-3">
+      <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+        <span>Quantization Precision vs VRAM Footprint</span>
+      </h3>
+      <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80">
+        <table class="w-full text-left text-xs font-mono">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-300">
+              <th class="p-3.5">Precision / Quant Type</th>
+              <th class="p-3.5">Bytes / Param</th>
+              <th class="p-3.5">Model Weights VRAM</th>
+              <th class="p-3.5">Compatible Single GPU</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-850">
+            {weightBreakdown.map((item) => (
+              <tr class="hover:bg-slate-900/50">
+                <td class="p-3.5 text-slate-100 font-bold">{item.label}</td>
+                <td class="p-3.5 text-slate-400">{item.bytesPerParam} B</td>
+                <td class="p-3.5 text-indigo-300 font-bold">{item.weightGb} GB</td>
+                <td class="p-3.5">
+                  <span class={`${item.badge.color} font-sans font-medium text-[11px]`}>
+                    {item.badge.text}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- KV Cache Expansion Table -->
+    {kvScaling.length > 0 && (
+      <div class="space-y-3">
+        <h3 class="text-lg font-bold text-slate-100">
+          KV-Cache Memory Growth with Sequence Length
+        </h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80">
+          <table class="w-full text-left text-xs font-mono">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-300">
+                <th class="p-3.5">Context Window (Tokens)</th>
+                <th class="p-3.5">FP16 KV Cache (2 B)</th>
+                <th class="p-3.5">FP8 KV Cache (1 B - vLLM)</th>
+                <th class="p-3.5">VRAM Savings</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-850">
+              {kvScaling.map((kv) => (
+                <tr class="hover:bg-slate-900/50">
+                  <td class="p-3.5 text-slate-100 font-bold">{kv.context.toLocaleString()} tokens</td>
+                  <td class="p-3.5 text-cyan-300">{kv.fp16Gb} GB</td>
+                  <td class="p-3.5 text-emerald-300 font-bold">{kv.fp8Gb} GB</td>
+                  <td class="p-3.5 text-slate-400">-50% reduction</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </section>
+
+  <!-- Related Model Presets Cross-Linking (Internal Links) -->
+  <section class="my-16">
+    <div class="text-left mb-6">
+      <h2 class="text-xl sm:text-2xl font-bold text-white">Compare Similar Model Calculators</h2>
+      <p class="text-xs text-slate-400 mt-1">Explore VRAM footprints for related open-weights architectures.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {relatedModels.map((rel) => (
+        <a
+          href={`/calculator/${rel.slug || rel.id}`}
+          class="group p-5 rounded-2xl border border-slate-800 bg-slate-900/50 hover:bg-slate-900 hover:border-indigo-500/50 transition-all backdrop-blur-md flex flex-col justify-between"
+        >
+          <div>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-semibold">
+              {rel.parametersB}B Params
+            </span>
+            <h3 class="font-bold text-slate-100 text-sm group-hover:text-indigo-400 transition-colors mt-2">
+              {rel.name}
+            </h3>
+            <p class="text-xs text-slate-400 mt-1 line-clamp-2">{rel.description}</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] font-semibold text-indigo-400 flex items-center justify-between">
+            <span>Calculate VRAM</span>
+            <span>→</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

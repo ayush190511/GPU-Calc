@@ -1,3 +1,5 @@
+import presetModelsData from '../data/preset-models.json';
+
 export type QuantizationType =
   | 'fp32'
   | 'fp16'
@@ -21,7 +23,9 @@ export type KvCacheQuantization = 'fp16' | 'fp8' | 'int4';
 export interface ModelPreset {
   id: string;
   name: string;
+  slug?: string;
   family: string;
+  developer?: string;
   parametersB: number;
   layers: number;
   heads: number;
@@ -33,7 +37,11 @@ export interface ModelPreset {
   isMoe?: boolean;
   totalMoeParamsB?: number;
   activeMoeParamsB?: number;
+  license?: string;
   description: string;
+  recommendedQuant?: string;
+  minGpuInference?: string;
+  minGpuTraining?: string;
 }
 
 export interface VramConfig {
@@ -100,224 +108,7 @@ export const KV_QUANT_BYTES: Record<KvCacheQuantization, { bytes: number; label:
   int4: { bytes: 0.5, label: 'INT4 (0.5 B/param - FlashInfer)' },
 };
 
-export const PRESET_MODELS: ModelPreset[] = [
-  {
-    id: 'llama-3.3-70b',
-    name: 'Llama 3.3 70B Instruct',
-    family: 'Meta Llama',
-    parametersB: 70.6,
-    layers: 80,
-    heads: 64,
-    kvHeads: 8, // GQA 8:1
-    headDim: 128,
-    hiddenDim: 8192,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'Meta flagship open-weights dense powerhouse with 128k context & GQA.',
-  },
-  {
-    id: 'llama-3.1-8b',
-    name: 'Llama 3.1 8B Instruct',
-    family: 'Meta Llama',
-    parametersB: 8.03,
-    layers: 32,
-    heads: 32,
-    kvHeads: 8, // GQA 4:1
-    headDim: 128,
-    hiddenDim: 4096,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'Gold standard compact LLM for local reasoning, agents, and fine-tuning.',
-  },
-  {
-    id: 'deepseek-r1-671b',
-    name: 'DeepSeek R1 / V3 (671B MoE)',
-    family: 'DeepSeek',
-    parametersB: 671,
-    layers: 61,
-    heads: 128,
-    kvHeads: 128, // Multi-head Latent Attention (MLA) compressed effective dim ~512
-    headDim: 128,
-    hiddenDim: 7168,
-    defaultContext: 8192,
-    maxContext: 131072,
-    isMoe: true,
-    totalMoeParamsB: 671,
-    activeMoeParamsB: 37,
-    description: 'Reasoning model with 671B total weights, 37B active parameters, and MLA.',
-  },
-  {
-    id: 'deepseek-r1-distill-70b',
-    name: 'DeepSeek R1 Distill 70B (Llama)',
-    family: 'DeepSeek',
-    parametersB: 70.6,
-    layers: 80,
-    heads: 64,
-    kvHeads: 8,
-    headDim: 128,
-    hiddenDim: 8192,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'DeepSeek reasoning traces distilled into Llama 3.3 70B architecture.',
-  },
-  {
-    id: 'deepseek-r1-distill-32b',
-    name: 'DeepSeek R1 Distill 32B (Qwen)',
-    family: 'DeepSeek',
-    parametersB: 32.5,
-    layers: 64,
-    heads: 40,
-    kvHeads: 8,
-    headDim: 128,
-    hiddenDim: 5120,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'SOTA mid-weight reasoning distilled into Qwen 2.5 32B.',
-  },
-  {
-    id: 'deepseek-r1-distill-14b',
-    name: 'DeepSeek R1 Distill 14B (Qwen)',
-    family: 'DeepSeek',
-    parametersB: 14.7,
-    layers: 48,
-    heads: 40,
-    kvHeads: 8,
-    headDim: 128,
-    hiddenDim: 5120,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'Top-tier code and math reasoning fitting easily onto a single 24GB/32GB GPU.',
-  },
-  {
-    id: 'qwen-2.5-72b',
-    name: 'Qwen 2.5 72B Instruct',
-    family: 'Alibaba Qwen',
-    parametersB: 72.7,
-    layers: 80,
-    heads: 64,
-    kvHeads: 8,
-    headDim: 128,
-    hiddenDim: 8192,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'Industry-leading multilingual coding and reasoning dense model.',
-  },
-  {
-    id: 'qwen-2.5-32b',
-    name: 'Qwen 2.5 32B Instruct',
-    family: 'Alibaba Qwen',
-    parametersB: 32.5,
-    layers: 64,
-    heads: 40,
-    kvHeads: 8,
-    headDim: 128,
-    hiddenDim: 5120,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'Sweet-spot balance of 70B performance with 32B memory footprint.',
-  },
-  {
-    id: 'qwen-2.5-7b',
-    name: 'Qwen 2.5 7B Instruct',
-    family: 'Alibaba Qwen',
-    parametersB: 7.61,
-    layers: 28,
-    heads: 28,
-    kvHeads: 4,
-    headDim: 128,
-    hiddenDim: 3584,
-    defaultContext: 8192,
-    maxContext: 131072,
-    description: 'Super-efficient 7B model for edge deployments and high-throughput pipelines.',
-  },
-  {
-    id: 'mistral-small-24b',
-    name: 'Mistral Small 3 24B',
-    family: 'Mistral AI',
-    parametersB: 24.0,
-    layers: 56,
-    heads: 32,
-    kvHeads: 8,
-    headDim: 128,
-    hiddenDim: 4096,
-    defaultContext: 8192,
-    maxContext: 32768,
-    description: 'High-capability 24B enterprise reasoning model with fast inference.',
-  },
-  {
-    id: 'mixtral-8x7b',
-    name: 'Mixtral 8x7B MoE',
-    family: 'Mistral AI',
-    parametersB: 46.7,
-    layers: 32,
-    heads: 32,
-    kvHeads: 8,
-    headDim: 128,
-    hiddenDim: 4096,
-    defaultContext: 8192,
-    maxContext: 32768,
-    isMoe: true,
-    totalMoeParamsB: 46.7,
-    activeMoeParamsB: 12.9,
-    description: 'Sparse Mixture of Experts with 47B total parameters and 13B active.',
-  },
-  {
-    id: 'gemma-2-27b',
-    name: 'Gemma 2 27B',
-    family: 'Google Gemma',
-    parametersB: 27.2,
-    layers: 46,
-    heads: 32,
-    kvHeads: 16,
-    headDim: 128,
-    hiddenDim: 4608,
-    defaultContext: 8192,
-    maxContext: 8192,
-    description: 'Google high-efficiency architecture with sliding-window attention.',
-  },
-  {
-    id: 'gemma-2-9b',
-    name: 'Gemma 2 9B',
-    family: 'Google Gemma',
-    parametersB: 9.24,
-    layers: 42,
-    heads: 16,
-    kvHeads: 8,
-    headDim: 256,
-    hiddenDim: 3584,
-    defaultContext: 8192,
-    maxContext: 8192,
-    description: 'Google lightweight model punching well above its weight class.',
-  },
-  {
-    id: 'phi-4-14b',
-    name: 'Phi-4 (14B)',
-    family: 'Microsoft Phi',
-    parametersB: 14.7,
-    layers: 40,
-    heads: 40,
-    kvHeads: 10,
-    headDim: 128,
-    hiddenDim: 5120,
-    defaultContext: 8192,
-    maxContext: 16384,
-    description: 'Microsoft state-of-the-art synthetic data trained 14B model.',
-  },
-  {
-    id: 'flux-1-schnell',
-    name: 'FLUX.1 [schnell] (12B Diffusion)',
-    family: 'Black Forest Labs',
-    parametersB: 12.0,
-    layers: 38,
-    heads: 24,
-    kvHeads: 24,
-    headDim: 128,
-    hiddenDim: 3072,
-    defaultContext: 512,
-    maxContext: 1024,
-    description: '12B parameter Flow Matching Rectified Transformer text-to-image generator.',
-  },
-];
+export const PRESET_MODELS: ModelPreset[] = presetModelsData as ModelPreset[];
 
 /**
  * Derives approximate transformer architectural hyperparameters when custom parameter count is specified
@@ -361,7 +152,6 @@ export function calculateKvCacheGb(
   batchSize: number,
   kvBytesPerParam: number
 ): number {
-  // Elements = 2 * layers * kvHeads * headDim * contextLength * batchSize
   const totalElements = 2 * layers * kvHeads * headDim * contextLength * batchSize;
   const totalBytes = totalElements * kvBytesPerParam;
   return totalBytes / (1024 * 1024 * 1024);
@@ -400,7 +190,6 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
   const bytesPerKvParam = KV_QUANT_BYTES[kvCacheQuantization].bytes;
 
   // 1. Model Weights Memory (GB)
-  // 1 Billion parameters = 10^9 params. (10^9 / 1024^3 ≈ 0.93132257 GB in pure binary GiB)
   const totalParams = parametersB * 1e9;
   const modelWeightsGb = (totalParams * bytesPerWeightParam) / (1024 * 1024 * 1024);
 
@@ -448,7 +237,7 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
     trainableParamsB = parametersB;
     const totalTrainable = parametersB * 1e9;
 
-    // Gradients in FP16/BF16 = 2 bytes/param (or FP32 = 4 bytes)
+    // Gradients in FP16/BF16 = 2 bytes/param
     gradientsGb = (totalTrainable * 2) / (1024 * 1024 * 1024);
 
     // AdamW Optimizer States:
@@ -467,17 +256,11 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
   }
 
   // 4. Activation Memory (GB)
-  // For inference: small scratch space ~ 0.2 - 1.0 GB depending on context and batch
-  // For training: depends heavily on context length, batch size, and whether gradient checkpointing is enabled.
   let activationsGb = 0;
   if (mode === 'inference') {
-    // Inference activations: ~ batchSize * contextLength * hiddenDim * 2 bytes * 4 (intermediate buffers)
     const actBytes = batchSize * contextLength * arch.hiddenDim * 2 * 4;
     activationsGb = Math.min(Math.max(actBytes / (1024 * 1024 * 1024), 0.3), 8.0);
   } else {
-    // Training activations:
-    // With gradient checkpointing: ~ 2 * layers * batchSize * contextLength * hiddenDim * bytes (saving only layer boundaries)
-    // Without checkpointing: ~ 10-20x higher
     const factor = gradientCheckpointing ? 2.5 : 16;
     const actBytes = arch.layers * batchSize * contextLength * arch.hiddenDim * factor * 2;
     activationsGb = actBytes / (1024 * 1024 * 1024);
@@ -526,6 +309,34 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
 }
 
 /**
+ * Convenient calculateVram functional signature
+ */
+export function calculateVram(
+  paramsB: number,
+  precision: QuantizationType = 'fp16',
+  contextLen: number = 8192,
+  batchSize: number = 1,
+  mode: RunMode = 'inference',
+  isGQA: boolean = true
+): VramBreakdown {
+  const arch = estimateArchitecture(paramsB);
+  const kvHeads = isGQA ? Math.max(1, Math.floor(arch.heads / 4)) : arch.heads;
+  return calculateVramRequirements({
+    parametersB: paramsB,
+    quantization: precision,
+    contextLength: contextLen,
+    batchSize: batchSize,
+    mode: mode,
+    kvCacheQuantization: 'fp16',
+    layers: arch.layers,
+    heads: arch.heads,
+    kvHeads: kvHeads,
+    headDim: arch.headDim,
+    hiddenDim: arch.hiddenDim,
+  });
+}
+
+/**
  * Calculates estimated token generation throughput (tokens/second)
  * based on memory bandwidth and active memory footprint for batch_size=1 autoregressive decoding.
  */
@@ -535,9 +346,8 @@ export function estimateInferenceThroughput(
   gpuMemoryBandwidthGbps: number
 ): number {
   if (gpuMemoryBandwidthGbps <= 0) return 0;
-  const memoryPerTokenGb = modelWeightsGb + kvCacheGb * 0.05; // weights read every step + slice of KV
+  const memoryPerTokenGb = modelWeightsGb + kvCacheGb * 0.05;
   if (memoryPerTokenGb <= 0) return 0;
-  // Theoretical max tokens/sec ≈ Memory Bandwidth (GB/s) / Model Memory Footprint (GB) * realistic efficiency (65%)
   const tokensPerSec = (gpuMemoryBandwidthGbps / memoryPerTokenGb) * 0.65;
   return Math.min(Math.max(Number(tokensPerSec.toFixed(1)), 1.0), 350.0);
 }
