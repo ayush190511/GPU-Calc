@@ -487,14 +487,9 @@ html.light .bg-grid-pattern {
   background-size: 32px 32px;
 }
 
-/* Smooth Scroll & Offset for Sticky Header */
+/* Snug Scroll Offset for 64px Sticky Header */
 html {
-  scroll-padding-top: 4.5rem;
-}
-
-section[id],
-div[id] {
-  scroll-margin-top: 4.5rem;
+  scroll-padding-top: 4.15rem;
 }
 
 /* Code block font overrides */
