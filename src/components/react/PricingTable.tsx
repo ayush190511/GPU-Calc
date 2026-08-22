@@ -2,6 +2,11 @@ import React, { useState, useMemo } from 'react';
 import type { GpuInstance } from '../../lib/types';
 import gpuPricingRaw from '../../data/gpu-pricing.json';
 import {
+  calculateCostPerMillionTokens,
+  calculateTokensPerDollar,
+  calculateTcoBreakEven,
+} from '../../lib/calculations';
+import {
   Server,
   ArrowUpDown,
   ExternalLink,
@@ -12,6 +17,9 @@ import {
   Sparkles,
   TrendingDown,
   Cpu,
+  Calculator,
+  Zap,
+  X,
 } from 'lucide-react';
 
 interface PricingTableProps {
@@ -23,7 +31,8 @@ type SortField =
   | 'onDemandPricePerHour'
   | 'totalVramGb'
   | 'memoryBandwidthGbps'
-  | 'costPerGb';
+  | 'costPerGb'
+  | 'tokensPerDollar';
 type SortDirection = 'asc' | 'desc';
 type DurationMode = '1h' | '24h' | '100h' | '720h';
 
@@ -36,6 +45,9 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
   const [sortField, setSortField] = useState<SortField>('spotPricePerHour');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [durationMode, setDurationMode] = useState<DurationMode>('1h');
+  const [showTcoModal, setShowTcoModal] = useState(false);
+  const [tcoGpuModel, setTcoGpuModel] = useState<'rtx4090' | 'rtx5090' | 'a100'>('rtx4090');
+  const [tcoGpuCount, setTcoGpuCount] = useState(1);
 
   const gpus = gpuPricingRaw as GpuInstance[];
 
@@ -114,9 +126,14 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
         if (sortField === 'costPerGb') {
           valA = a.spotPricePerHour / a.totalVramGb;
           valB = b.spotPricePerHour / b.totalVramGb;
+        } else if (sortField === 'tokensPerDollar') {
+          const tpsA = (a.memoryBandwidthGbps / 120) * 0.65;
+          const tpsB = (b.memoryBandwidthGbps / 120) * 0.65;
+          valA = calculateTokensPerDollar(a.spotPricePerHour, tpsA);
+          valB = calculateTokensPerDollar(b.spotPricePerHour, tpsB);
         } else {
-          valA = a[sortField];
-          valB = b[sortField];
+          valA = a[sortField] as number;
+          valB = b[sortField] as number;
         }
 
         if (sortDirection === 'asc') {
@@ -206,40 +223,175 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
         </div>
       </div>
 
-      {/* Best Deal Spotlight Card */}
-      {lowestSpotDeal && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <TrendingDown className="w-4 h-4 text-emerald-400" />
+      {/* Best Deal Spotlight & TCO Calculator Trigger */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {lowestSpotDeal && (
+          <div className="md:col-span-2 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                <TrendingDown className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <span className="text-emerald-400 font-semibold uppercase tracking-wider text-[10px] block">
+                  Lowest Cost Compatible Option
+                </span>
+                <span className="text-slate-200 font-medium">
+                  {lowestSpotDeal.gpuModel} on <b className="text-white">{lowestSpotDeal.provider}</b> ({lowestSpotDeal.totalVramGb}GB VRAM)
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="text-emerald-400 font-semibold uppercase tracking-wider text-[10px] block">
-                Lowest Cost Compatible Option
-              </span>
-              <span className="text-slate-200 font-medium">
-                {lowestSpotDeal.gpuModel} on <b className="text-white">{lowestSpotDeal.provider}</b> ({lowestSpotDeal.totalVramGb}GB VRAM)
-              </span>
+
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <span className="text-[10px] text-slate-400 block">Spot Rate</span>
+                <span className="text-sm font-mono font-bold text-emerald-400">
+                  ${(lowestSpotDeal.spotPricePerHour * durationMultiplier).toFixed(2)}
+                  <span className="text-[10px] text-slate-400 font-normal"> / {durationMode}</span>
+                </span>
+              </div>
+              <a
+                href={lowestSpotDeal.rentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors flex items-center gap-1"
+              >
+                <span>Rent Node</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
           </div>
+        )}
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <span className="text-[10px] text-slate-400 block">Spot Rate</span>
-              <span className="text-sm font-mono font-bold text-emerald-400">
-                ${(lowestSpotDeal.spotPricePerHour * durationMultiplier).toFixed(2)}
-                <span className="text-[10px] text-slate-400 font-normal"> / {durationMode}</span>
-              </span>
+        {/* TCO Buy vs Rent Trigger Card */}
+        <div className="rounded-xl border border-indigo-500/30 bg-indigo-950/30 p-3.5 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
+              <Calculator className="w-4 h-4 text-indigo-400" />
             </div>
-            <a
-              href={lowestSpotDeal.rentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1 transition-all shadow-md shadow-emerald-500/20"
-            >
-              <span>Deploy</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
+            <div>
+              <span className="text-indigo-300 font-semibold text-[11px] block">
+                Buy vs. Rent TCO Lab
+              </span>
+              <span className="text-[10px] text-slate-400">Hardware break-even simulator</span>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowTcoModal(true)}
+            className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-colors shrink-0"
+          >
+            Calculate TCO
+          </button>
+        </div>
+      </div>
+
+      {/* Buy vs Rent TCO Modal */}
+      {showTcoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-xl bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-5 text-xs">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-indigo-400" />
+                <h3 className="text-sm font-bold text-white">On-Premises Hardware vs. Cloud TCO Simulator</h3>
+              </div>
+              <button
+                onClick={() => setShowTcoModal(false)}
+                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Selector */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">Target GPU Model:</label>
+                <select
+                  value={tcoGpuModel}
+                  onChange={(e) => setTcoGpuModel(e.target.value as any)}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-200"
+                >
+                  <option value="rtx4090">NVIDIA RTX 4090 (24GB) — $1,599 MSRP</option>
+                  <option value="rtx5090">NVIDIA RTX 5090 (32GB) — $1,999 MSRP</option>
+                  <option value="a100">NVIDIA A100 (80GB PCIe) — $9,500 Market</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">GPU Quantity:</label>
+                <div className="flex gap-2">
+                  {[1, 2, 4].map((count) => (
+                    <button
+                      key={count}
+                      onClick={() => setTcoGpuCount(count)}
+                      className={`flex-1 py-2 font-mono font-bold rounded-xl border ${
+                        tcoGpuCount === count
+                          ? 'bg-indigo-600 border-indigo-400 text-white'
+                          : 'bg-slate-950 border-slate-800 text-slate-400'
+                      }`}
+                    >
+                      {count}x GPU
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* TCO Results Grid */}
+            {(() => {
+              const msrp = tcoGpuModel === 'rtx4090' ? 1599 : tcoGpuModel === 'rtx5090' ? 1999 : 9500;
+              const watts = tcoGpuModel === 'rtx4090' ? 450 : tcoGpuModel === 'rtx5090' ? 600 : 400;
+              const cloudRate = tcoGpuModel === 'rtx4090' ? 0.44 : tcoGpuModel === 'rtx5090' ? 0.79 : 1.64;
+              const res = calculateTcoBreakEven(tcoGpuCount, msrp, 1200, watts, 0.14, cloudRate);
+
+              return (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block">Upfront Hardware</span>
+                      <span className="text-base font-bold font-mono text-indigo-400">
+                        ${res.hardwareUpfrontCost.toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block">Monthly Electricity</span>
+                      <span className="text-base font-bold font-mono text-amber-400">
+                        ${res.monthlyElectricityCost}/mo
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block">Cloud Rent (Monthly)</span>
+                      <span className="text-base font-bold font-mono text-rose-400">
+                        ${res.monthlyCloudCost.toLocaleString()}/mo
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-emerald-300">Break-Even Horizon:</span>
+                      <span className="text-lg font-mono font-black text-emerald-400">
+                        {res.breakEvenMonths} Months
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      If running 24/7 workloads, purchasing hardware pays for itself after <b>{res.breakEvenMonths} months</b>.
+                      Estimated 1-year net savings: <b className="text-emerald-300">${res.savings1Year.toLocaleString()}</b> (2-year: <b className="text-emerald-300">${res.savings2Year.toLocaleString()}</b>).
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setShowTcoModal(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -378,6 +530,14 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
                   <ArrowUpDown className="w-3 h-3 text-slate-500" />
                 </div>
               </th>
+              <th
+                className="py-3 px-3 hover:text-indigo-400 transition-colors text-right hidden lg:table-cell"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  <span>Throughput ROI</span>
+                  <Zap className="w-3 h-3 text-cyan-400" />
+                </div>
+              </th>
               <th className="py-3 px-4 text-center">Action</th>
             </tr>
           </thead>
@@ -385,7 +545,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
           <tbody className="divide-y divide-slate-850">
             {filteredGpus.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-slate-500">
+                <td colSpan={8} className="py-12 text-center text-slate-500">
                   <div className="max-w-xs mx-auto space-y-2">
                     <Server className="w-8 h-8 text-slate-600 mx-auto" />
                     <p className="font-medium text-slate-400">No matching GPU nodes found</p>
@@ -411,6 +571,9 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
                 const isCompatible = gpu.totalVramGb >= requiredVramGb;
                 const spotCost = gpu.spotPricePerHour * durationMultiplier;
                 const onDemandCost = gpu.onDemandPricePerHour * durationMultiplier;
+                const effectiveTps = Math.max(1, (gpu.memoryBandwidthGbps / 120) * 0.65);
+                const tokensPerDollar = calculateTokensPerDollar(gpu.spotPricePerHour, effectiveTps);
+                const costPer1M = calculateCostPerMillionTokens(gpu.spotPricePerHour, effectiveTps);
 
                 return (
                   <tr
@@ -490,6 +653,16 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
                       </span>
                       <span className="block text-[10px] text-slate-500">
                         (${gpu.onDemandPricePerHour.toFixed(2)}/hr)
+                      </span>
+                    </td>
+
+                    {/* ROI (Tokens / $) */}
+                    <td className="py-3 px-3 text-right hidden lg:table-cell">
+                      <span className="font-mono font-bold text-cyan-300 text-xs">
+                        {tokensPerDollar} MTok / $
+                      </span>
+                      <span className="block text-[10px] text-slate-400 font-mono">
+                        ${costPer1M} / 1M
                       </span>
                     </td>
 

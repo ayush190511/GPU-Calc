@@ -284,12 +284,13 @@ export const VramCalculator: React.FC<VramCalculatorProps> = ({
             </div>
           </div>
 
-          {/* Batch Size & KV Quantization */}
+          {/* Batch Size & KV Quantization & Tensor Parallelism */}
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Batch Size */}
               <div>
                 <label className="text-xs font-semibold text-slate-200 block mb-1.5">
-                  Batch Size / Concurrency
+                  Batch Size (Concurrency)
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -304,6 +305,7 @@ export const VramCalculator: React.FC<VramCalculatorProps> = ({
                 </div>
               </div>
 
+              {/* KV Precision */}
               <div>
                 <label className="text-xs font-semibold text-slate-200 block mb-1.5">
                   KV-Cache Precision
@@ -320,7 +322,100 @@ export const VramCalculator: React.FC<VramCalculatorProps> = ({
                   <option value="int4">INT4 (0.5 B - FlashInfer)</option>
                 </select>
               </div>
+
+              {/* Multi-GPU Tensor Parallelism (TP) */}
+              <div>
+                <label className="text-xs font-semibold text-slate-200 block mb-1.5 flex items-center justify-between">
+                  <span>GPU Cluster (TP)</span>
+                  <span className="text-[10px] font-mono text-indigo-400 font-bold">
+                    {config.tensorParallelism || 1}x GPU{config.tensorParallelism && config.tensorParallelism > 1 ? 's' : ''}
+                  </span>
+                </label>
+                <div className="grid grid-cols-4 gap-1">
+                  {[1, 2, 4, 8].map((tp) => {
+                    const isSelected = (config.tensorParallelism || 1) === tp;
+                    return (
+                      <button
+                        key={tp}
+                        type="button"
+                        onClick={() => updateConfig({ tensorParallelism: tp })}
+                        className={`py-1.5 text-xs font-mono font-bold rounded-lg border transition-all ${
+                          isSelected
+                            ? 'bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-600/30'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                        }`}
+                      >
+                        {tp}x
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
+
+            {/* Multimodal / Vision Language Model (VLM) Image Token Expansion */}
+            <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-200 flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.isVlm || false}
+                    onChange={(e) => updateConfig({ isVlm: e.target.checked, imageCount: e.target.checked ? (config.imageCount || 1) : 0 })}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-900 border-slate-700"
+                  />
+                  <span>Multimodal / Vision-Language Model (VLM) Tokens</span>
+                </label>
+                {config.isVlm && (
+                  <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-800/40">
+                    +{breakdown.vlmImageTokens.toLocaleString()} Image Tokens
+                  </span>
+                )}
+              </div>
+
+              {config.isVlm && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/60">
+                  <div>
+                    <div className="flex justify-between text-[11px] text-slate-400 mb-1">
+                      <span>Input Images per Request:</span>
+                      <span className="font-mono text-slate-200 font-bold">{config.imageCount || 1} img</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="8"
+                      value={config.imageCount || 1}
+                      onChange={(e) => updateConfig({ imageCount: parseInt(e.target.value) || 1 })}
+                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[11px] text-slate-400 mb-1">
+                      <span>Image Resolution:</span>
+                      <span className="font-mono text-slate-200 font-bold">{config.imageResolution || 1024}px</span>
+                    </div>
+                    <select
+                      value={config.imageResolution || 1024}
+                      onChange={(e) => updateConfig({ imageResolution: parseInt(e.target.value) })}
+                      className="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-200"
+                    >
+                      <option value="512">512 × 512 (~400 patch tokens)</option>
+                      <option value="1024">1024 × 1024 (~1,600 patch tokens)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Interconnect Requirement Badge if TP > 1 */}
+            {breakdown.tensorParallelism > 1 && (
+              <div className="p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between text-xs">
+                <span className="text-slate-300">Inter-GPU Bandwidth Req:</span>
+                <span className="font-mono font-bold text-indigo-300">
+                  {breakdown.interconnectRequirement}
+                </span>
+              </div>
+            )}
 
             {config.mode.includes('lora') && (
               <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs flex items-center justify-between">
@@ -350,18 +445,32 @@ export const VramCalculator: React.FC<VramCalculatorProps> = ({
               </span>
             </div>
 
-            <div className="flex items-baseline gap-2 my-2">
-              <span className="text-5xl font-extrabold tracking-tight text-white font-mono">
-                {breakdown.totalVramGb}
-              </span>
-              <span className="text-lg font-bold text-indigo-300 font-mono">GB</span>
-            </div>
+            {breakdown.tensorParallelism > 1 ? (
+              <div>
+                <div className="flex items-baseline gap-2 my-2">
+                  <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white font-mono">
+                    {breakdown.vramPerGpuGb}
+                  </span>
+                  <span className="text-sm sm:text-base font-bold text-indigo-300 font-mono">GB / GPU</span>
+                </div>
+                <div className="text-[11px] text-slate-300 font-mono mb-2">
+                  Total Cluster: <b className="text-white">{breakdown.totalVramGb} GB</b> across {breakdown.tensorParallelism}x GPUs
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-baseline gap-2 my-2">
+                <span className="text-5xl font-extrabold tracking-tight text-white font-mono">
+                  {breakdown.totalVramGb}
+                </span>
+                <span className="text-lg font-bold text-indigo-300 font-mono">GB</span>
+              </div>
+            )}
 
             <div className="flex items-center gap-1.5 text-xs text-slate-300 mt-1">
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>Recommended Target:</span>
               <span className="font-mono font-bold text-emerald-300">
-                {breakdown.recommendedVramGb} GB
+                {breakdown.tensorParallelism > 1 ? `${breakdown.recommendedPerGpuVramGb} GB / card` : `${breakdown.recommendedVramGb} GB`}
               </span>
               <span className="text-[10px] text-slate-500">(+15% buffer)</span>
             </div>

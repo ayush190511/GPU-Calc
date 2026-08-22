@@ -35,6 +35,7 @@ export interface ModelPreset {
   defaultContext: number;
   maxContext: number;
   isMoe?: boolean;
+  isVlm?: boolean;
   totalMoeParamsB?: number;
   activeMoeParamsB?: number;
   license?: string;
@@ -51,6 +52,11 @@ export interface VramConfig {
   batchSize: number;
   mode: RunMode;
   kvCacheQuantization: KvCacheQuantization;
+  tensorParallelism?: number; // 1, 2, 4, 8 GPUs
+  // Multimodal / VLM options:
+  isVlm?: boolean;
+  imageCount?: number; // e.g. 0 to 8
+  imageResolution?: number; // 512, 1024
   loraRank?: number;
   loraTrainableFraction?: number; // e.g. 0.01 for 1%
   gradientCheckpointing?: boolean;
@@ -74,6 +80,14 @@ export interface VramBreakdown {
   safetyMarginGb: number;
   totalVramGb: number;
   recommendedVramGb: number;
+  // Multi-GPU Tensor Parallelism fields:
+  tensorParallelism: number;
+  vramPerGpuGb: number;
+  recommendedPerGpuVramGb: number;
+  interconnectRequirement: string;
+  // Multimodal / VLM tokens info:
+  vlmImageTokens: number;
+  effectiveContextLength: number;
   // Metadata for UI insights
   bytesPerWeightParam: number;
   bytesPerKvParam: number;
@@ -168,12 +182,21 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
     batchSize,
     mode,
     kvCacheQuantization = 'fp16',
+    tensorParallelism = 1,
+    isVlm = false,
+    imageCount = 0,
+    imageResolution = 1024,
     loraRank = 16,
     loraTrainableFraction,
     gradientCheckpointing = true,
     cudaOverheadBufferGb = 1.5,
     safetyMarginPct = 0.15,
   } = config;
+
+  // 1. Multimodal / Vision Tokens: 1024x1024 ≈ 1600 tokens/img; 512x512 ≈ 400 tokens/img
+  const tokensPerImage = imageResolution === 512 ? 400 : 1600;
+  const vlmImageTokens = isVlm && imageCount > 0 ? imageCount * tokensPerImage : 0;
+  const effectiveContextLength = contextLength + vlmImageTokens;
 
   // Derive trainable fraction based on loraRank (e.g. rank 16 ≈ 1.2%, rank 64 ≈ 4.8%)
   const effectiveLoraFraction = loraTrainableFraction ?? (loraRank / 16) * 0.012;
@@ -189,24 +212,24 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
   const bytesPerWeightParam = QUANT_BYTES[quantization].bytes;
   const bytesPerKvParam = KV_QUANT_BYTES[kvCacheQuantization].bytes;
 
-  // 1. Model Weights Memory (GB)
+  // 2. Model Weights Memory (GB)
   const totalParams = parametersB * 1e9;
   const modelWeightsGb = (totalParams * bytesPerWeightParam) / (1024 * 1024 * 1024);
 
-  // 2. KV-Cache Memory (GB)
+  // 3. KV-Cache Memory (GB) using effectiveContextLength
   let kvCacheGb = 0;
   if (mode === 'inference') {
     kvCacheGb = calculateKvCacheGb(
       arch.layers,
       arch.kvHeads,
       arch.headDim,
-      contextLength,
+      effectiveContextLength,
       batchSize,
       bytesPerKvParam
     );
   }
 
-  // 3. Training Overhead: Gradients & Optimizer & Trainable Parameters
+  // 4. Training Overhead: Gradients & Optimizer & Trainable Parameters
   let optimizerGb = 0;
   let gradientsGb = 0;
   let trainableParamsB = 0;
@@ -216,68 +239,66 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
     gradientsGb = 0;
     trainableParamsB = 0;
   } else if (mode === 'qlora') {
-    // QLoRA: Base weights in 4-bit, Adapter parameters
     trainableParamsB = parametersB * effectiveLoraFraction;
     const trainableParamsCount = trainableParamsB * 1e9;
-
-    // Gradients in FP16/BF16 (2 bytes/param) for adapters only
     gradientsGb = (trainableParamsCount * 2) / (1024 * 1024 * 1024);
-
-    // AdamW optimizer for adapters (First & Second moments in FP32 = 8 bytes + FP32 Master weights = 4 bytes = 12 bytes/param)
     optimizerGb = (trainableParamsCount * 12) / (1024 * 1024 * 1024);
   } else if (mode === 'lora_16bit') {
-    // Standard LoRA: Base weights in 16-bit, Adapters
     trainableParamsB = parametersB * effectiveLoraFraction;
     const trainableParamsCount = trainableParamsB * 1e9;
-
     gradientsGb = (trainableParamsCount * 2) / (1024 * 1024 * 1024);
     optimizerGb = (trainableParamsCount * 12) / (1024 * 1024 * 1024);
   } else if (mode === 'full_finetune_16bit') {
-    // Full Fine-Tuning 16-bit (Mixed Precision):
     trainableParamsB = parametersB;
     const totalTrainable = parametersB * 1e9;
-
-    // Gradients in FP16/BF16 = 2 bytes/param
     gradientsGb = (totalTrainable * 2) / (1024 * 1024 * 1024);
-
-    // AdamW Optimizer States:
-    // FP32 Master Weights (4 bytes) + Momentum (4 bytes) + Variance (4 bytes) = 12 bytes/param
     optimizerGb = (totalTrainable * 12) / (1024 * 1024 * 1024);
   } else if (mode === 'full_finetune_32bit') {
-    // Full Fine-Tuning 32-bit (Pure FP32):
     trainableParamsB = parametersB;
     const totalTrainable = parametersB * 1e9;
-
-    // Gradients in FP32 = 4 bytes/param
     gradientsGb = (totalTrainable * 4) / (1024 * 1024 * 1024);
-
-    // AdamW: Momentum (4 bytes) + Variance (4 bytes) = 8 bytes/param
     optimizerGb = (totalTrainable * 8) / (1024 * 1024 * 1024);
   }
 
-  // 4. Activation Memory (GB)
+  // 5. Activation Memory (GB)
   let activationsGb = 0;
   if (mode === 'inference') {
-    const actBytes = batchSize * contextLength * arch.hiddenDim * 2 * 4;
+    const actBytes = batchSize * effectiveContextLength * arch.hiddenDim * 2 * 4;
     activationsGb = Math.min(Math.max(actBytes / (1024 * 1024 * 1024), 0.3), 8.0);
   } else {
     const factor = gradientCheckpointing ? 2.5 : 16;
-    const actBytes = arch.layers * batchSize * contextLength * arch.hiddenDim * factor * 2;
+    const actBytes = arch.layers * batchSize * effectiveContextLength * arch.hiddenDim * factor * 2;
     activationsGb = actBytes / (1024 * 1024 * 1024);
   }
 
-  // 5. CUDA Runtime Overhead & Context
+  // 6. CUDA Runtime Overhead & Context
   const cudaOverheadGb = cudaOverheadBufferGb;
 
-  // 6. Subtotal before safety margin
+  // 7. Subtotal before safety margin
   const subtotalGb =
     modelWeightsGb + kvCacheGb + optimizerGb + gradientsGb + activationsGb + cudaOverheadGb;
 
-  // 7. Safety Margin (15% recommended for fragmentation & peak spikes)
+  // 8. Safety Margin (15% recommended for fragmentation & peak spikes)
   const safetyMarginGb = subtotalGb * safetyMarginPct;
 
   const totalVramGb = subtotalGb;
   const recommendedVramGb = subtotalGb + safetyMarginGb;
+
+  // 9. Multi-GPU Tensor Parallelism (TP) Split
+  const tp = Math.max(1, tensorParallelism);
+  // Weights, KV, Optimizer, and Activations are sharded across GPUs
+  const vramPerGpuGb =
+    (modelWeightsGb + kvCacheGb + optimizerGb + gradientsGb + activationsGb) / tp + cudaOverheadGb;
+  const recommendedPerGpuVramGb = vramPerGpuGb * (1 + safetyMarginPct);
+
+  let interconnectRequirement = 'Single GPU (PCIe Gen4 / Gen5)';
+  if (tp === 2) {
+    interconnectRequirement = 'PCIe Gen4 / Gen5 or NVLink-4';
+  } else if (tp === 4) {
+    interconnectRequirement = 'NVLink-4 / NVSwitch (900 GB/s)';
+  } else if (tp >= 8) {
+    interconnectRequirement = 'NVLink-5 / NVSwitch (1.8 TB/s)';
+  }
 
   // Calculate suggested GPU configurations
   const suggestedGpuCount = {
@@ -298,6 +319,12 @@ export function calculateVramRequirements(config: VramConfig): VramBreakdown {
     safetyMarginGb: Number(safetyMarginGb.toFixed(2)),
     totalVramGb: Number(totalVramGb.toFixed(2)),
     recommendedVramGb: Number(recommendedVramGb.toFixed(2)),
+    tensorParallelism: tp,
+    vramPerGpuGb: Number(vramPerGpuGb.toFixed(2)),
+    recommendedPerGpuVramGb: Number(recommendedPerGpuVramGb.toFixed(2)),
+    interconnectRequirement,
+    vlmImageTokens,
+    effectiveContextLength,
     bytesPerWeightParam,
     bytesPerKvParam,
     contextLength,
@@ -317,7 +344,8 @@ export function calculateVram(
   contextLen: number = 8192,
   batchSize: number = 1,
   mode: RunMode = 'inference',
-  isGQA: boolean = true
+  isGQA: boolean = true,
+  tp: number = 1
 ): VramBreakdown {
   const arch = estimateArchitecture(paramsB);
   const kvHeads = isGQA ? Math.max(1, Math.floor(arch.heads / 4)) : arch.heads;
@@ -328,6 +356,7 @@ export function calculateVram(
     batchSize: batchSize,
     mode: mode,
     kvCacheQuantization: 'fp16',
+    tensorParallelism: tp,
     layers: arch.layers,
     heads: arch.heads,
     kvHeads: kvHeads,
@@ -350,4 +379,78 @@ export function estimateInferenceThroughput(
   if (memoryPerTokenGb <= 0) return 0;
   const tokensPerSec = (gpuMemoryBandwidthGbps / memoryPerTokenGb) * 0.65;
   return Math.min(Math.max(Number(tokensPerSec.toFixed(1)), 1.0), 350.0);
+}
+
+/**
+ * Calculates Cost per 1 Million Tokens ($/1M Tok)
+ */
+export function calculateCostPerMillionTokens(
+  hourlyPrice: number,
+  tokensPerSec: number
+): number {
+  if (hourlyPrice <= 0 || tokensPerSec <= 0) return 0;
+  // 1 hour = 3600 seconds. Total tokens generated in 1 hour = tokensPerSec * 3600
+  // Cost per token = hourlyPrice / (tokensPerSec * 3600)
+  // Cost per 1M tokens = Cost per token * 1,000,000 = (hourlyPrice / (tokensPerSec * 3.6))
+  const cost = hourlyPrice / (tokensPerSec * 3.6);
+  return Number(cost.toFixed(4));
+}
+
+/**
+ * Calculates Tokens Generated Per Dollar (MTok / $)
+ */
+export function calculateTokensPerDollar(
+  hourlyPrice: number,
+  tokensPerSec: number
+): number {
+  if (hourlyPrice <= 0 || tokensPerSec <= 0) return 0;
+  const tokensPerHour = tokensPerSec * 3600;
+  const tokensPerDollar = tokensPerHour / hourlyPrice;
+  return Number((tokensPerDollar / 1e6).toFixed(2)); // Return in Millions of Tokens
+}
+
+/**
+ * Buy vs Rent TCO Break-Even Calculator
+ */
+export interface TcoResult {
+  hardwareUpfrontCost: number;
+  monthlyElectricityCost: number;
+  monthlyCloudCost: number;
+  breakEvenMonths: number;
+  savings1Year: number;
+  savings2Year: number;
+}
+
+export function calculateTcoBreakEven(
+  gpuCount: number,
+  gpuMsrp: number,
+  rigBaseCost: number = 1200,
+  powerWattsPerGpu: number = 450,
+  kwhRate: number = 0.14,
+  cloudHourlyPrice: number = 0.79
+): TcoResult {
+  const totalHardwareCost = gpuCount * gpuMsrp + rigBaseCost;
+  // Total power in kW (including ~150W for system base):
+  const totalPowerKw = (gpuCount * powerWattsPerGpu + 150) / 1000;
+  // Monthly hours = 730
+  const monthlyKwh = totalPowerKw * 730;
+  const monthlyElectricityCost = monthlyKwh * kwhRate;
+
+  const monthlyCloudCost = gpuCount * cloudHourlyPrice * 730;
+  const monthlyNetSavings = monthlyCloudCost - monthlyElectricityCost;
+
+  const breakEvenMonths =
+    monthlyNetSavings > 0 ? Number((totalHardwareCost / monthlyNetSavings).toFixed(1)) : 999;
+
+  const savings1Year = Number((monthlyNetSavings * 12 - totalHardwareCost).toFixed(0));
+  const savings2Year = Number((monthlyNetSavings * 24 - totalHardwareCost).toFixed(0));
+
+  return {
+    hardwareUpfrontCost: totalHardwareCost,
+    monthlyElectricityCost: Number(monthlyElectricityCost.toFixed(2)),
+    monthlyCloudCost: Number(monthlyCloudCost.toFixed(2)),
+    breakEvenMonths,
+    savings1Year,
+    savings2Year,
+  };
 }
