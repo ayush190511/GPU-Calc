@@ -34,8 +34,20 @@ body {
   color: var(--text-main);
 }
 
+/* Selection Styling */
+::selection {
+  background-color: rgba(99, 102, 241, 0.4);
+  color: #ffffff;
+}
+
+html.light ::selection,
+html.light *::selection {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
 /* =========================================================================
-   LIGHT MODE COMPREHENSIVE OVERRIDES
+   LIGHT MODE COMPREHENSIVE REFINEMENTS
    ========================================================================= */
 
 html.light body {
@@ -51,6 +63,7 @@ html.light .bg-slate-950\/85,
 html.light .bg-slate-950\/80,
 html.light .bg-slate-950\/70,
 html.light .bg-slate-950\/60,
+html.light .bg-slate-950\/50,
 html.light .bg-slate-950\/40 {
   background-color: #ffffff !important;
   color: #0f172a !important;
@@ -63,7 +76,7 @@ html.light .bg-slate-900\/60,
 html.light .bg-slate-900\/50,
 html.light .bg-slate-900\/40 {
   background-color: #ffffff !important;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.05) !important;
 }
 
 html.light .bg-slate-800,
@@ -93,7 +106,6 @@ html.light .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
 }
 
 /* High-Contrast Typography in Light Mode */
-html.light .text-white,
 html.light .text-slate-100 {
   color: #0f172a !important;
 }
@@ -111,41 +123,83 @@ html.light .text-slate-500 {
   color: #94a3b8 !important;
 }
 
-/* Accent Color Darkening for Crisp Readability on White */
+/* Accent Colors Darkening for Crisp Legibility on Light Surfaces */
 html.light .text-indigo-400,
 html.light .text-indigo-300 {
-  color: #4f46e5 !important;
+  color: #4338ca !important;
+}
+html.light .text-indigo-200 {
+  color: #3730a3 !important;
 }
 
 html.light .text-cyan-400,
-html.light .text-cyan-300,
-html.light .text-cyan-200 {
+html.light .text-cyan-300 {
   color: #0284c7 !important;
+}
+html.light .text-cyan-200 {
+  color: #0369a1 !important;
 }
 
 html.light .text-emerald-400,
 html.light .text-emerald-300 {
-  color: #059669 !important;
+  color: #047857 !important;
+}
+html.light .text-emerald-200 {
+  color: #065f46 !important;
 }
 
 html.light .text-violet-400,
-html.light .text-violet-300,
+html.light .text-violet-300 {
+  color: #6d28d9 !important;
+}
 html.light .text-violet-200 {
-  color: #7c3aed !important;
+  color: #5b21b6 !important;
+}
+
+html.light .text-purple-400,
+html.light .text-purple-300,
+html.light .text-purple-200 {
+  color: #6b21a8 !important;
 }
 
 html.light .text-amber-400,
-html.light .text-amber-300,
+html.light .text-amber-300 {
+  color: #b45309 !important;
+}
 html.light .text-amber-200 {
-  color: #d97706 !important;
+  color: #92400e !important;
 }
 
 html.light .text-rose-400,
 html.light .text-rose-300 {
-  color: #e11d48 !important;
+  color: #be123c !important;
 }
 
-/* Accent Badges in Light Mode */
+/* =========================================================================
+   BUTTONS & ACTIVE PILLS: ENSURE PURE WHITE TEXT ON DARK ACCENTS
+   ========================================================================= */
+html.light .bg-indigo-600,
+html.light .bg-indigo-600 *,
+html.light .bg-indigo-700,
+html.light .bg-indigo-700 *,
+html.light .bg-violet-600,
+html.light .bg-violet-600 *,
+html.light .bg-purple-600,
+html.light .bg-purple-600 *,
+html.light button.bg-indigo-600,
+html.light button.bg-indigo-600 *,
+html.light a.bg-indigo-600,
+html.light a.bg-indigo-600 *,
+html.light [class*="bg-indigo-600"],
+html.light [class*="bg-indigo-600"] *,
+html.light [class*="bg-violet-600"],
+html.light [class*="bg-violet-600"] *,
+html.light [class*="bg-purple-600"],
+html.light [class*="bg-purple-600"] * {
+  color: #ffffff !important;
+}
+
+/* Soft accent badges in Light Mode */
 html.light .bg-indigo-500\/10,
 html.light .bg-indigo-500\/15,
 html.light .bg-indigo-500\/20,
@@ -178,9 +232,10 @@ html.light .bg-emerald-950\/40 {
 html.light .bg-violet-500\/10,
 html.light .bg-violet-500\/20,
 html.light .bg-violet-900\/60,
-html.light .bg-purple-500\/15 {
+html.light .bg-purple-500\/15,
+html.light .bg-purple-500\/10 {
   background-color: #f5f3ff !important;
-  color: #6d28d9 !important;
+  color: #6b21a8 !important;
   border-color: #ddd6fe !important;
 }
 
@@ -202,7 +257,7 @@ html.light .bg-rose-500\/20 {
 
 /* Header & Navigation in Light Mode */
 html.light header {
-  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-color: rgba(255, 255, 255, 0.94) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
 }
@@ -269,14 +324,109 @@ html.light .from-indigo-950\/80 span.text-5xl {
   color: #1e1b4b !important;
 }
 
-/* Details & FAQ Accordions in Light Mode */
+/* =========================================================================
+   ARCHITECTURAL PRECISION & METHODOLOGY IN LIGHT MODE
+   ========================================================================= */
+#methodology .p-5.rounded-xl {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light #methodology .p-3.rounded-lg.font-mono {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light #methodology .text-purple-300 {
+  color: #6b21a8 !important;
+}
+
+html.light #methodology .text-purple-200 {
+  color: #581c87 !important;
+  font-weight: 700 !important;
+}
+
+html.light #methodology .text-indigo-200 {
+  color: #312e81 !important;
+  font-weight: 700 !important;
+}
+
+html.light #methodology .text-cyan-200 {
+  color: #0c4a6e !important;
+  font-weight: 700 !important;
+}
+
+html.light #methodology .text-amber-200 {
+  color: #78350f !important;
+  font-weight: 700 !important;
+}
+
+/* =========================================================================
+   FAQ SECTION & DETAILS ACCORDIONS IN LIGHT MODE
+   ========================================================================= */
+html.light #faq > div,
+html.light .rounded-2xl.border.border-slate-800.bg-slate-900\/50 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light #faq details,
 html.light details {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
 }
 
+html.light #faq details summary,
+html.light details summary {
+  color: #0f172a !important;
+}
+
+html.light #faq details[open],
 html.light details[open] {
   border-color: #c7d2fe !important;
+  background-color: #fbfbfe !important;
+}
+
+/* FAQ React Accordion buttons in light mode */
+html.light #faq button[aria-expanded="false"],
+html.light #faq .border-slate-800\/80.bg-slate-950\/50 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light #faq button[aria-expanded="false"]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html.light #faq .border-indigo-500\/40.bg-slate-950\/90,
+html.light #faq button[aria-expanded="true"] {
+  background-color: #f5f7ff !important;
+  border-color: #c7d2fe !important;
+}
+
+html.light #faq h3 {
+  color: #0f172a !important;
+}
+
+html.light #faq .p-3.rounded-xl.bg-slate-950,
+html.light #faq .p-2\.5.rounded-lg.bg-slate-900,
+html.light #faq .overflow-x-auto.rounded-xl.bg-slate-950 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light #faq .font-mono.text-cyan-300 {
+  color: #0369a1 !important;
+}
+
+html.light #faq .font-mono.text-slate-200 {
+  color: #0f172a !important;
+}
+
+html.light #faq .border-t.border-slate-850 {
+  border-color: #e2e8f0 !important;
 }
 
 /* Code & Pre Blocks in Light Mode */
