@@ -4,16 +4,18 @@
 
 <button
   type="button"
-  id="theme-toggle"
-  class="theme-toggle-btn p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 transition-all duration-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+  class="theme-toggle-btn p-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 hover:text-white border border-slate-700/60 transition-all duration-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
   aria-label="Toggle dark/light color theme"
   title="Toggle dark/light mode"
 >
-  <!-- Sun Icon (shown in dark mode, click to switch to light) -->
+  <!-- Sun Icon (Active when dark mode, click to switch to light) -->
   <svg
-    class="w-4 h-4 text-amber-300 hidden dark:block transition-transform hover:rotate-45"
+    class="theme-sun-icon w-4 h-4 text-amber-300 transition-transform duration-200 hover:rotate-45"
     fill="none"
     stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
     viewBox="0 0 24 24"
   >
     <circle cx="12" cy="12" r="4"></circle>
@@ -27,11 +29,14 @@
     <path d="m19.07 4.93-1.41 1.41"></path>
   </svg>
 
-  <!-- Moon Icon (shown in light mode, click to switch to dark) -->
+  <!-- Moon Icon (Active when light mode, click to switch to dark) -->
   <svg
-    class="w-4 h-4 text-indigo-400 block dark:hidden transition-transform hover:-rotate-12"
+    class="theme-moon-icon w-4 h-4 text-indigo-600 hidden transition-transform duration-200 hover:-rotate-12"
     fill="none"
     stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
     viewBox="0 0 24 24"
   >
     <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
@@ -39,11 +44,31 @@
 </button>
 
 <script is:inline>
+  function updateThemeIcons() {
+    const isLight = document.documentElement.classList.contains('light');
+    document.querySelectorAll('.theme-sun-icon').forEach((el) => {
+      if (isLight) {
+        el.classList.add('hidden');
+      } else {
+        el.classList.remove('hidden');
+      }
+    });
+    document.querySelectorAll('.theme-moon-icon').forEach((el) => {
+      if (isLight) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    });
+  }
+
   function setupThemeToggles() {
+    updateThemeIcons();
     const toggleButtons = document.querySelectorAll('.theme-toggle-btn');
     toggleButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const isDark = document.documentElement.classList.contains('dark');
+      // Remove old clone to prevent duplicate event listeners
+      btn.onclick = () => {
+        const isDark = !document.documentElement.classList.contains('light');
         if (isDark) {
           document.documentElement.classList.remove('dark');
           document.documentElement.classList.add('light');
@@ -53,10 +78,16 @@
           document.documentElement.classList.add('dark');
           localStorage.setItem('theme', 'dark');
         }
-      });
+        updateThemeIcons();
+      };
     });
   }
 
-  setupThemeToggles();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupThemeToggles);
+  } else {
+    setupThemeToggles();
+  }
   document.addEventListener('astro:after-swap', setupThemeToggles);
+  document.addEventListener('astro:page-load', setupThemeToggles);
 </script>

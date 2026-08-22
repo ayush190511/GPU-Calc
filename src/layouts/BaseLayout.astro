@@ -23,28 +23,28 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Inline script to prevent theme flash -->
     <script is:inline>
-      const theme = (() => {
-        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-          return localStorage.getItem('theme');
-        }
-        if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-          return 'light';
-        }
-        return 'dark';
+      (() => {
+        try {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          } else if (stored === 'dark') {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+          } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          } else {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
       })();
-
-      if (theme === 'light') {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-      } else {
-        document.documentElement.classList.remove('light');
-        document.documentElement.classList.add('dark');
-      }
     </script>
 
     <!-- Primary Meta Tags -->
@@ -93,7 +93,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
       }
     </script>
   </head>
-  <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
+  <body class="font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
     <!-- Background Ambient Glow & Grid -->
     <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
       <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-tr from-indigo-600/15 via-violet-600/10 to-cyan-500/10 blur-[130px] rounded-full"></div>
@@ -102,41 +102,35 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
     </div>
 
     <!-- Navigation Header -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80">
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/85 border-b border-slate-800/80 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <!-- Logo -->
-        <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all">
-            <div class="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-              <svg class="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                <rect x="9" y="9" width="6" height="6"></rect>
-                <path d="M9 1v3"></path>
-                <path d="M15 1v3"></path>
-                <path d="M9 20v3"></path>
-                <path d="M15 20v3"></path>
-                <path d="M20 9h3"></path>
-                <path d="M20 14h3"></path>
-                <path d="M1 9h3"></path>
-                <path d="M1 14h3"></path>
+        <!-- Solid High-Contrast Logo -->
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-400 p-[1.5px] shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/50 transition-all duration-300">
+            <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center relative overflow-hidden">
+              <!-- Solid Microchip Icon SVG -->
+              <svg class="w-6 h-6 text-indigo-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2" fill="#4F46E5" fill-opacity="0.2"></rect>
+                <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="#6366F1"></rect>
+                <path d="M4 9H2M4 15H2M20 9H22M20 15H22M9 4V2M15 4V2M9 20V22M15 20V22" stroke="#38BDF8"></path>
               </svg>
             </div>
           </div>
           <div class="flex flex-col">
-            <span class="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
+            <span class="font-black text-lg tracking-tight text-white flex items-center gap-1.5 leading-tight">
               GPU<span class="text-indigo-400">Calc</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono font-normal">
-                v2.6
+              <span class="text-[9px] px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-300 font-mono font-bold border border-indigo-500/30">
+                PRO
               </span>
             </span>
-            <span class="text-[10px] text-slate-400 font-mono leading-none">
+            <span class="text-[10px] text-slate-400 font-mono tracking-wide">
               VRAM & Cloud Cost Lab
             </span>
           </div>
         </a>
 
         <!-- Desktop Nav Links -->
-        <nav class="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
+        <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300">
           <a href="/#calculator" class="hover:text-indigo-400 transition-colors">VRAM Sizer</a>
           <a href="/#pricing-matrix" class="hover:text-indigo-400 transition-colors">Live GPU Matrix</a>
           <a href="/#methodology" class="hover:text-indigo-400 transition-colors">Methodology</a>
@@ -144,45 +138,51 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
           <a href="/contact" class="hover:text-indigo-400 transition-colors">Contact</a>
         </nav>
 
-        <!-- Right Actions: Theme Toggle & CTA -->
+        <!-- Right Desktop Actions -->
         <div class="hidden sm:flex items-center gap-3">
           <ThemeToggle />
           <a
             href="/#pricing-matrix"
-            class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all"
+            class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition-all hover:scale-105"
           >
             Compare Rates
           </a>
         </div>
 
-        <!-- Mobile Hamburger Button & Mobile Theme Toggle -->
+        <!-- Mobile Controls: Theme Toggle & Animated Hamburger Button -->
         <div class="flex items-center gap-2 md:hidden">
           <ThemeToggle />
+          
+          <!-- Animated Hamburger Button that transforms into a cross -->
           <button
             type="button"
             id="mobile-menu-btn"
-            class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white focus:outline-none"
-            aria-label="Open mobile navigation menu"
+            class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:text-white flex flex-col justify-center items-center w-10 h-10 gap-1.5 focus:outline-none cursor-pointer transition-colors"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
+            <span id="ham-bar-1" class="w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
+            <span id="ham-bar-2" class="w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
+            <span id="ham-bar-3" class="w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
           </button>
         </div>
       </div>
 
-      <!-- Mobile Navigation Drawer -->
-      <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-2xl px-4 py-4 space-y-3">
-        <a href="/#calculator" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">VRAM Sizer</a>
-        <a href="/#pricing-matrix" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Live GPU Matrix</a>
-        <a href="/#methodology" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Formulas & Math</a>
-        <a href="/about" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">About GPUCalc</a>
-        <a href="/contact" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Contact & Feedback</a>
-        <a href="/privacy" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Privacy Policy</a>
-        <div class="pt-2">
+      <!-- Animated Mobile Navigation Drawer -->
+      <div
+        id="mobile-menu"
+        class="max-h-0 opacity-0 overflow-hidden transition-all duration-300 ease-in-out md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-2xl px-4 space-y-3"
+      >
+        <a href="/#calculator" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">VRAM Sizer Calculator</a>
+        <a href="/#pricing-matrix" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Live GPU Matrix</a>
+        <a href="/#methodology" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Formulas & Math</a>
+        <a href="/about" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">About GPUCalc</a>
+        <a href="/contact" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Contact & Feedback</a>
+        <a href="/privacy" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Privacy Policy</a>
+        <div class="pt-2 pb-4">
           <a
             href="/#pricing-matrix"
-            class="block text-center py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-md"
+            class="mobile-nav-link block text-center py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-xs shadow-md"
           >
             Compare Cloud Rates
           </a>
@@ -196,17 +196,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800/80 bg-slate-950/90 text-xs text-slate-400 mt-20">
+    <footer class="border-t border-slate-800/80 bg-slate-950/90 text-xs text-slate-400 mt-20 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div class="space-y-3 sm:col-span-2 md:col-span-2">
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shadow-indigo-600/30">
                 G
               </div>
-              <span class="font-bold text-slate-100 text-sm">GPUCalc / VRAM Cost Lab</span>
+              <span class="font-extrabold text-slate-100 text-base">GPUCalc / VRAM Cost Lab</span>
             </div>
-            <p class="text-slate-400 text-xs max-w-md">
+            <p class="text-slate-400 text-xs max-w-md leading-relaxed">
               The high-accuracy GPU memory sizing engine and live multi-cloud cost calculator for AI engineers, researchers, and infra architects.
             </p>
             <div class="flex flex-wrap items-center gap-3 text-slate-500 text-xs font-mono pt-1">
@@ -219,7 +219,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
           </div>
 
           <div>
-            <h4 class="font-semibold text-slate-200 mb-3 uppercase tracking-wider text-[11px]">Pages & Tools</h4>
+            <h4 class="font-bold text-slate-200 mb-3 uppercase tracking-wider text-[11px]">Pages & Tools</h4>
             <ul class="space-y-2 text-xs">
               <li><a href="/#calculator" class="hover:text-indigo-400 transition-colors">VRAM Sizer Calculator</a></li>
               <li><a href="/#pricing-matrix" class="hover:text-indigo-400 transition-colors">Cloud GPU Price Matrix</a></li>
@@ -231,7 +231,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
           </div>
 
           <div>
-            <h4 class="font-semibold text-slate-200 mb-3 uppercase tracking-wider text-[11px]">Cloud Providers</h4>
+            <h4 class="font-bold text-slate-200 mb-3 uppercase tracking-wider text-[11px]">Cloud Providers</h4>
             <ul class="space-y-2 text-xs">
               <li><a href="https://runpod.io" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">RunPod Cloud</a></li>
               <li><a href="https://lambdalabs.com" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">Lambda Labs GPU Cloud</a></li>
@@ -254,16 +254,77 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
       </div>
     </footer>
 
-    <!-- Mobile Menu Toggle Script -->
+    <!-- Mobile Menu Animation & Hamburger-to-Cross Morph Script -->
     <script is:inline>
-      const menuBtn = document.getElementById('mobile-menu-btn');
-      const mobileMenu = document.getElementById('mobile-menu');
+      function setupMobileMenu() {
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const bar1 = document.getElementById('ham-bar-1');
+        const bar2 = document.getElementById('ham-bar-2');
+        const bar3 = document.getElementById('ham-bar-3');
 
-      if (menuBtn && mobileMenu) {
-        menuBtn.addEventListener('click', () => {
-          mobileMenu.classList.toggle('hidden');
+        if (!menuBtn || !mobileMenu) return;
+
+        let isOpen = false;
+
+        function toggleMenu(open) {
+          isOpen = open !== undefined ? open : !isOpen;
+          menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+          if (isOpen) {
+            // Open animation
+            mobileMenu.classList.remove('max-h-0', 'opacity-0');
+            mobileMenu.classList.add('max-h-[500px]', 'opacity-100', 'py-4');
+            
+            // Hamburger morph into Cross (X)
+            if (bar1 && bar2 && bar3) {
+              bar1.style.transform = 'translateY(8px) rotate(45deg)';
+              bar2.style.opacity = '0';
+              bar2.style.transform = 'scale(0)';
+              bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
+            }
+          } else {
+            // Close animation
+            mobileMenu.classList.remove('max-h-[500px]', 'opacity-100', 'py-4');
+            mobileMenu.classList.add('max-h-0', 'opacity-0');
+
+            // Reset Cross back to Hamburger
+            if (bar1 && bar2 && bar3) {
+              bar1.style.transform = 'none';
+              bar2.style.opacity = '1';
+              bar2.style.transform = 'none';
+              bar3.style.transform = 'none';
+            }
+          }
+        }
+
+        menuBtn.onclick = (e) => {
+          e.stopPropagation();
+          toggleMenu();
+        };
+
+        // Close menu when clicking on any mobile nav link
+        document.querySelectorAll('.mobile-nav-link').forEach((link) => {
+          link.onclick = () => {
+            toggleMenu(false);
+          };
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+          if (isOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+            toggleMenu(false);
+          }
         });
       }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupMobileMenu);
+      } else {
+        setupMobileMenu();
+      }
+      document.addEventListener('astro:after-swap', setupMobileMenu);
+      document.addEventListener('astro:page-load', setupMobileMenu);
     </script>
   </body>
 </html>
