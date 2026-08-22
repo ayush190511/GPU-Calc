@@ -26,7 +26,7 @@ html.light {
 
 /* Custom smooth transitions for theme switches */
 html, body {
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 body {
@@ -34,15 +34,20 @@ body {
   color: var(--text-main);
 }
 
-/* Light mode thorough styling overrides */
+/* =========================================================================
+   LIGHT MODE COMPREHENSIVE OVERRIDES
+   ========================================================================= */
+
 html.light body {
   background-color: #f8fafc !important;
   color: #0f172a !important;
 }
 
+/* Backgrounds & Cards */
 html.light .bg-slate-950,
 html.light .bg-slate-950\/95,
 html.light .bg-slate-950\/90,
+html.light .bg-slate-950\/85,
 html.light .bg-slate-950\/80,
 html.light .bg-slate-950\/70,
 html.light .bg-slate-950\/60,
@@ -58,7 +63,7 @@ html.light .bg-slate-900\/60,
 html.light .bg-slate-900\/50,
 html.light .bg-slate-900\/40 {
   background-color: #ffffff !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03) !important;
 }
 
 html.light .bg-slate-800,
@@ -66,16 +71,28 @@ html.light .bg-slate-800\/80,
 html.light .bg-slate-800\/60,
 html.light .bg-slate-800\/40 {
   background-color: #f1f5f9 !important;
+  color: #334155 !important;
 }
 
+html.light .bg-slate-800\/40:hover,
+html.light .bg-slate-800\/60:hover,
+html.light .bg-slate-800\/80:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Borders */
 html.light .border-slate-800,
 html.light .border-slate-800\/80,
 html.light .border-slate-700,
 html.light .border-slate-700\/60,
-html.light .border-slate-850 {
+html.light .border-slate-850,
+html.light .divide-slate-850 > :not([hidden]) ~ :not([hidden]),
+html.light .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
   border-color: #e2e8f0 !important;
 }
 
+/* High-Contrast Typography in Light Mode */
 html.light .text-white,
 html.light .text-slate-100 {
   color: #0f172a !important;
@@ -83,24 +100,128 @@ html.light .text-slate-100 {
 
 html.light .text-slate-200,
 html.light .text-slate-300 {
-  color: #1e293b !important;
+  color: #334155 !important;
 }
 
 html.light .text-slate-400 {
   color: #64748b !important;
 }
 
+html.light .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* Accent Color Darkening for Crisp Readability on White */
+html.light .text-indigo-400,
+html.light .text-indigo-300 {
+  color: #4f46e5 !important;
+}
+
+html.light .text-cyan-400,
+html.light .text-cyan-300,
+html.light .text-cyan-200 {
+  color: #0284c7 !important;
+}
+
+html.light .text-emerald-400,
+html.light .text-emerald-300 {
+  color: #059669 !important;
+}
+
+html.light .text-violet-400,
+html.light .text-violet-300,
+html.light .text-violet-200 {
+  color: #7c3aed !important;
+}
+
+html.light .text-amber-400,
+html.light .text-amber-300,
+html.light .text-amber-200 {
+  color: #d97706 !important;
+}
+
+html.light .text-rose-400,
+html.light .text-rose-300 {
+  color: #e11d48 !important;
+}
+
+/* Accent Badges in Light Mode */
+html.light .bg-indigo-500\/10,
+html.light .bg-indigo-500\/15,
+html.light .bg-indigo-500\/20,
+html.light .bg-indigo-950\/60,
+html.light .bg-indigo-950\/40 {
+  background-color: #eef2ff !important;
+  color: #4338ca !important;
+  border-color: #c7d2fe !important;
+}
+
+html.light .bg-cyan-500\/10,
+html.light .bg-cyan-500\/15,
+html.light .bg-cyan-500\/20,
+html.light .bg-cyan-950\/40 {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/15,
+html.light .bg-emerald-500\/20,
+html.light .bg-emerald-950\/20,
+html.light .bg-emerald-950\/40 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html.light .bg-violet-500\/10,
+html.light .bg-violet-500\/20,
+html.light .bg-violet-900\/60,
+html.light .bg-purple-500\/15 {
+  background-color: #f5f3ff !important;
+  color: #6d28d9 !important;
+  border-color: #ddd6fe !important;
+}
+
+html.light .bg-amber-500\/10,
+html.light .bg-amber-500\/15,
+html.light .bg-amber-500\/20 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+html.light .bg-rose-500\/10,
+html.light .bg-rose-500\/15,
+html.light .bg-rose-500\/20 {
+  background-color: #fff1f2 !important;
+  color: #be123c !important;
+  border-color: #fecdd3 !important;
+}
+
+/* Header & Navigation in Light Mode */
 html.light header {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light #mobile-menu {
+  background-color: rgba(255, 255, 255, 0.98) !important;
   border-color: #e2e8f0 !important;
 }
 
+/* Footer in Light Mode */
 html.light footer {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
 }
 
-html.light input,
+/* Form Controls & Inputs in Light Mode */
+html.light input[type="text"],
+html.light input[type="number"],
+html.light input[type="email"],
 html.light select,
 html.light textarea {
   background-color: #ffffff !important;
@@ -108,10 +229,67 @@ html.light textarea {
   border-color: #cbd5e1 !important;
 }
 
+html.light input[type="text"]:focus,
+html.light input[type="number"]:focus,
+html.light input[type="email"]:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Range Sliders in Light Mode */
+html.light input[type="range"] {
+  background-color: #e2e8f0 !important;
+}
+
+/* Tables in Light Mode */
+html.light table {
+  background-color: #ffffff !important;
+}
+
+html.light thead tr {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Hero Total VRAM Card in Light Mode */
+html.light .from-indigo-950\/80 {
+  background-image: linear-gradient(to bottom right, #eef2ff, #ffffff, #f8fafc) !important;
+  border-color: #c7d2fe !important;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1) !important;
+}
+
+html.light .from-indigo-950\/80 span.text-5xl {
+  color: #1e1b4b !important;
+}
+
+/* Details & FAQ Accordions in Light Mode */
+html.light details {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light details[open] {
+  border-color: #c7d2fe !important;
+}
+
+/* Code & Pre Blocks in Light Mode */
 html.light pre {
   background-color: #f8fafc !important;
   color: #0f172a !important;
   border-color: #e2e8f0 !important;
+}
+
+/* Progress bar background in Light Mode */
+html.light .h-3\.5.w-full.bg-slate-950 {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
 }
 
 /* Custom sleek scrollbar */
