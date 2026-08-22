@@ -330,10 +330,16 @@ html.light .from-indigo-950\/80 span.text-5xl {
 /* =========================================================================
    ARCHITECTURAL PRECISION & METHODOLOGY IN LIGHT MODE
    ========================================================================= */
-#methodology .p-5.rounded-xl {
-  background-color: #ffffff !important;
+html.light #methodology {
+  background-color: rgba(255, 255, 255, 0.95) !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light #methodology .p-5.rounded-xl {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.03) !important;
 }
 
 html.light #methodology .p-3.rounded-lg.font-mono {
