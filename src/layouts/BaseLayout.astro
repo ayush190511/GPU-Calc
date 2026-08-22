@@ -138,11 +138,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
 
         <!-- Desktop Nav Links -->
         <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300">
-          <a href="/#calculator" class="hover:text-indigo-400 transition-colors">VRAM Sizer</a>
-          <a href="/#pricing-matrix" class="hover:text-indigo-400 transition-colors">Live GPU Matrix</a>
-          <a href="/#methodology" class="hover:text-indigo-400 transition-colors">Methodology</a>
-          <a href="/about" class="hover:text-indigo-400 transition-colors">About</a>
-          <a href="/contact" class="hover:text-indigo-400 transition-colors">Contact</a>
+          <a href="/#calculator" class="nav-link hover:text-indigo-400 transition-colors">VRAM Sizer</a>
+          <a href="/#pricing-matrix" class="nav-link hover:text-indigo-400 transition-colors">Live GPU Matrix</a>
+          <a href="/#methodology" class="nav-link hover:text-indigo-400 transition-colors">Methodology</a>
+          <a href="/about" class={`nav-link transition-colors ${Astro.url.pathname.startsWith('/about') ? 'text-indigo-400 font-bold' : 'hover:text-indigo-400'}`}>About</a>
+          <a href="/contact" class={`nav-link transition-colors ${Astro.url.pathname.startsWith('/contact') ? 'text-indigo-400 font-bold' : 'hover:text-indigo-400'}`}>Contact</a>
         </nav>
 
         <!-- Right Desktop Actions -->
@@ -409,13 +409,48 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
         });
       }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupMobileMenu);
-      } else {
-        setupMobileMenu();
+      function setupHeaderNav() {
+        document.querySelectorAll('nav a, #mobile-menu a').forEach((link) => {
+          link.onclick = (e) => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+
+            const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+            const targetPath = href.split('#')[0].replace(/\/$/, '') || '/';
+            const targetHash = href.includes('#') ? href.split('#')[1] : null;
+
+            // If clicking link for the current page (e.g. on /about clicking /about)
+            if (targetPath === currentPath && !targetHash) {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              return;
+            }
+
+            // If on homepage and clicking an in-page section link (e.g. /#calculator)
+            if (currentPath === '/' && targetHash) {
+              const targetEl = document.getElementById(targetHash);
+              if (targetEl) {
+                e.preventDefault();
+                targetEl.scrollIntoView({ behavior: 'smooth' });
+                history.pushState(null, '', '#' + targetHash);
+              }
+            }
+          };
+        });
       }
-      document.addEventListener('astro:after-swap', setupMobileMenu);
-      document.addEventListener('astro:page-load', setupMobileMenu);
+
+      function initLayoutScripts() {
+        setupMobileMenu();
+        setupHeaderNav();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLayoutScripts);
+      } else {
+        initLayoutScripts();
+      }
+      document.addEventListener('astro:after-swap', initLayoutScripts);
+      document.addEventListener('astro:page-load', initLayoutScripts);
     </script>
   </body>
 </html>

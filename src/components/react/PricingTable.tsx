@@ -487,11 +487,11 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
         </div>
       </div>
 
-      {/* Main Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/70">
+      {/* Main Table Container with Scrollable Body & Sticky Header */}
+      <div className="overflow-x-auto overflow-y-auto max-h-[540px] rounded-xl border border-slate-800 bg-slate-950/70 relative">
         <table className="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr className="border-b border-slate-800 bg-slate-900/80 text-slate-300 font-semibold select-none">
+          <thead className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md shadow-sm">
+            <tr className="border-b border-slate-800 text-slate-300 font-semibold select-none">
               <th className="py-3 px-4">GPU & Architecture</th>
               <th className="py-3 px-3">Provider</th>
               <th
@@ -690,7 +690,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({ requiredVramGb }) =>
       <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 pt-2">
         <div className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Spot prices fluctuate dynamically based on regional supply & spot bid market.</span>
+          <span>Showing all {filteredGpus.length} nodes • Scroll table vertically to view full hardware catalog</span>
         </div>
         <span>Prices updated February 2026</span>
       </div>
