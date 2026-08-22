@@ -253,17 +253,23 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           <!-- Brand & Architecture Column -->
           <div class="space-y-4 sm:col-span-2 md:col-span-2">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-400 p-[1px] shadow-md shadow-indigo-600/30 flex items-center justify-center">
-                <div class="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-                  <span class="text-xs font-black text-indigo-400 font-mono">GC</span>
+            <a href="/" class="flex items-center gap-3 group">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-400 p-[1.2px] shadow-md shadow-indigo-600/30 flex items-center justify-center group-hover:shadow-indigo-500/50 transition-all duration-300">
+                <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center relative overflow-hidden">
+                  <svg class="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2" fill="#4F46E5" fill-opacity="0.2"></rect>
+                    <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="#6366F1"></rect>
+                    <path d="M4 9H2M4 15H2M20 9H22M20 15H22M9 4V2M15 4V2M9 20V22M15 20V22" stroke="#38BDF8"></path>
+                  </svg>
                 </div>
               </div>
               <div class="flex flex-col">
-                <span class="font-extrabold text-slate-100 text-base leading-none">GPUCalc</span>
+                <span class="font-extrabold text-slate-100 text-base leading-tight group-hover:text-indigo-400 transition-colors">
+                  GPU<span class="text-indigo-400">Calc</span>
+                </span>
                 <span class="text-[10px] text-slate-400 font-mono mt-0.5">AI Model VRAM & Cloud Cost Lab</span>
               </div>
-            </div>
+            </a>
 
             <p class="text-slate-400 text-xs max-w-sm leading-relaxed">
               Deterministic GPU memory sizing engine and multi-cloud pricing comparison for AI engineers, researchers, and infra architects.
