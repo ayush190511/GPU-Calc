@@ -35,35 +35,37 @@ Calculate exact VRAM footprints for **Inference, QLoRA, LoRA, and Full Fine-Tuni
 ### 1. Model Weights Memory
 $$M_{\text{weights}} = \frac{\text{Parameters (Billion)} \times 10^9 \times \text{Bytes per Param}}{1024^3}$$
 
-- **FP32:** $4.0 \text{ bytes/param}$
-- **FP16 / BF16:** $2.0 \text{ bytes/param}$
-- **FP8 / INT8:** $1.0 \text{ byte/param}$
-- **INT4 / AWQ / GPTQ:** $\sim 0.55 \text{ bytes/param}$ (includes metadata, scale factor, and zero-point overhead)
+- **FP32:** $4.0\text{ bytes/param}$
+- **FP16 / BF16:** $2.0\text{ bytes/param}$
+- **FP8 / INT8:** $1.0\text{ byte/param}$
+- **INT4 / AWQ / GPTQ:** $\sim 0.55\text{ bytes/param}$ (includes metadata, scale factor, and zero-point overhead)
 
 ### 2. KV-Cache Context Memory (with GQA & Vision Tokens)
 $$\text{Tokens}_{\text{total}} = \text{Context Length} + (\text{Image Count} \times \text{Tokens per Image})$$
-$$M_{\text{kv}} = \frac{2 \times N_{\text{layers}} \times N_{\text{kv\_heads}} \times D_{\text{head}} \times \text{Tokens}_{\text{total}} \times \text{Batch Size} \times \text{Bytes}_{\text{kv}}}{1024^3}$$
+
+$$M_{\text{kv}} = \frac{2 \times N_{\text{layers}} \times N_{\text{kv}} \times D_{\text{head}} \times \text{Tokens}_{\text{total}} \times \text{Batch Size} \times \text{Bytes}_{\text{kv}}}{1024^3}$$
 
 - **Grouped Query Attention (GQA):** Architectures like Llama 3 (64 query heads : 8 KV heads) reduce KV-cache VRAM by up to **87.5%**.
-- **Multimodal Patch Sizing:** $1024 \times 1024 \approx 1,600 \text{ tokens/image}$; $512 \times 512 \approx 400 \text{ tokens/image}$.
+- **Multimodal Patch Sizing:** $1024 \times 1024 \approx 1600\text{ tokens/image}$; $512 \times 512 \approx 400\text{ tokens/image}$.
 
 ### 3. Training & AdamW Optimizer States
 - **Full Fine-Tuning (Mixed Precision):** 
-  - FP32 Master Weights: $4 \text{ bytes/param}$
-  - AdamW Momentum $m$: $4 \text{ bytes/param}$
-  - AdamW Variance $v$: $4 \text{ bytes/param}$
-  - Gradients (FP16): $2 \text{ bytes/param}$
-  - **Total:** $14 \text{ bytes/param}$
+  - FP32 Master Weights: $4\text{ bytes/param}$
+  - AdamW Momentum $m$: $4\text{ bytes/param}$
+  - AdamW Variance $v$: $4\text{ bytes/param}$
+  - Gradients (FP16): $2\text{ bytes/param}$
+  - **Total:** $14\text{ bytes/param}$
 - **QLoRA / LoRA:** Base weights quantized in 4-bit/16-bit; optimizer states and gradients calculated **only for trainable adapter parameters** ($\sim 1.2\%$ of total weights).
 
 ### 4. Multi-GPU Tensor Parallelism (TP) Split
-$$M_{\text{per\_gpu}} = \frac{M_{\text{weights}} + M_{\text{kv}} + M_{\text{opt}} + M_{\text{grad}} + M_{\text{act}}}{\text{TP}} + M_{\text{cuda}}$$
+$$M_{\text{per-gpu}} = \frac{M_{\text{weights}} + M_{\text{kv}} + M_{\text{opt}} + M_{\text{grad}} + M_{\text{act}}}{\text{TP}} + M_{\text{cuda}}$$
 
 Weights, KV-cache, optimizer states, and activations are sharded evenly across all $\text{TP}$ GPUs, with CUDA runtime overhead allocated per device.
 
 ### 5. Throughput ROI & Cost per 1M Tokens
 $$\text{Cost per 1M Tokens} = \frac{\text{Hourly Price}}{\text{Tokens/sec} \times 3.6}$$
-$$\text{Tokens per Dollar (MTok / \$)} = \frac{\text{Tokens/sec} \times 3600}{\text{Hourly Price} \times 10^6}$$
+
+$$\text{Tokens per Dollar (MTok / USD)} = \frac{\text{Tokens/sec} \times 3600}{\text{Hourly Price} \times 10^6}$$
 
 ---
 
