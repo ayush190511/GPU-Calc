@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 — GPU Cluster Node Not Found | GPUCalc"
+  description="The requested page or GPU calculation configuration could not be found on this cluster node."
+>
+  <div class="py-12 sm:py-20 text-center max-w-2xl mx-auto space-y-6">
+    <!-- Error Terminal Badge -->
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-mono">
+      <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+      <span>ERROR: CUDA_DEVICE_NOT_FOUND (404)</span>
+    </div>
+
+    <div class="relative">
+      <h1 class="text-7xl sm:text-9xl font-black font-mono tracking-tighter text-transparent bg-gradient-to-r from-rose-500 via-violet-500 to-indigo-500 bg-clip-text">
+        404
+      </h1>
+      <div class="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full -z-10"></div>
+    </div>
+
+    <h2 class="text-xl sm:text-2xl font-bold text-slate-100">
+      GPU Node Offline or Page Missing
+    </h2>
+
+    <p class="text-sm text-slate-300 leading-relaxed max-w-md mx-auto">
+      The tensor pathway or route you were trying to access does not exist on this cluster. Let's redirect you back to the VRAM calculation engine.
+    </p>
+
+    <!-- Terminal error box -->
+    <div class="rounded-xl border border-slate-800 bg-slate-900/90 p-4 font-mono text-left text-xs text-slate-300 shadow-xl max-w-lg mx-auto space-y-1.5">
+      <div class="flex items-center gap-1.5 pb-2 border-b border-slate-800 text-slate-500 text-[11px]">
+        <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+        <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+        <span class="ml-2">gpucalc-node-terminal</span>
+      </div>
+      <div class="text-rose-400">$ torch.cuda.get_device_properties(0)</div>
+      <div class="text-slate-400">RuntimeError: No CUDA-capable device is detected at current URL.</div>
+      <div class="text-emerald-400">→ Recommendation: Fallback to / (Home)</div>
+    </div>
+
+    <!-- Quick action links -->
+    <div class="flex flex-wrap items-center justify-center gap-3 pt-4">
+      <a
+        href="/"
+        class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
+      >
+        Return to VRAM Calculator
+      </a>
+      <a
+        href="/#pricing-matrix"
+        class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium text-xs transition-colors"
+      >
+        View Cloud GPU Prices
+      </a>
+      <a
+        href="/about"
+        class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium text-xs transition-colors"
+      >
+        About GPUCalc
+      </a>
+    </div>
+  </div>
+</BaseLayout>

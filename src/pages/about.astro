@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="About GPUCalc — Precision AI Hardware Sizing & Cloud Benchmarks"
+  description="Learn about the engineering principles, mathematical modeling, and multi-cloud pricing engine powering GPUCalc."
+>
+  <div class="max-w-4xl mx-auto space-y-12 py-4">
+    <!-- Header -->
+    <div class="text-center space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+        <span>Engineering & Architecture</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+        About <span class="text-indigo-400">GPUCalc</span>
+      </h1>
+      <p class="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        Built for AI engineers, ML researchers, and infrastructure architects who need deterministic VRAM calculations and transparent cloud GPU pricing before spinning up expensive clusters.
+      </p>
+    </div>
+
+    <!-- Core Pillars Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md space-y-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
+          01
+        </div>
+        <h2 class="font-bold text-slate-100 text-base">Deterministic Formulas</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          We model PyTorch CUDA allocator behavior, including KV-cache expansion, GQA ratios, LoRA trainable weights, AdamW optimizer momentums, and runtime fragmentation headroom.
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md space-y-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold">
+          02
+        </div>
+        <h2 class="font-bold text-slate-100 text-base">Multi-Cloud Pricing</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Aggregating verified spot and on-demand rates across RunPod, Lambda Labs, Vast.ai, AWS EC2, and GCP to ensure you never overpay for GPU compute.
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md space-y-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+          03
+        </div>
+        <h2 class="font-bold text-slate-100 text-base">100% Client-Side Privacy</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          All computations, configurations, and slider interactions execute strictly in your browser. No model weights, custom architectures, or telemetry data are collected.
+        </p>
+      </div>
+    </div>
+
+    <!-- Supported Hardware Architectures Section -->
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-md space-y-6">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+        <span>Supported Hardware & Architectures</span>
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+          <div class="font-bold text-indigo-300">NVIDIA Blackwell (B200 / RTX 5090)</div>
+          <p class="text-slate-400">
+            Next-generation 192GB HBM3e and 32GB GDDR7 architecture with 2nd-gen Transformer Engine and native FP4/FP8 compute acceleration.
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+          <div class="font-bold text-cyan-300">NVIDIA Hopper (H100 / H200 SXM5)</div>
+          <p class="text-slate-400">
+            The enterprise training and serving flagship with 80GB to 141GB HBM3 memory, NVLink-4 (900 GB/s), and FP8 Transformer Engine support.
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+          <div class="font-bold text-violet-300">NVIDIA Ada Lovelace (RTX 4090 / L40S / RTX 6000)</div>
+          <p class="text-slate-400">
+            The consumer and workstation champion with 24GB to 48GB GDDR6X, high memory bandwidth (1008 GB/s), and 4th-gen Tensor Cores.
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+          <div class="font-bold text-amber-300">NVIDIA Ampere (A100 / RTX 3090 / A10G)</div>
+          <p class="text-slate-400">
+            Battle-tested high-VRAM data center standards supporting PCIe 4.0, NVLink-3, and TensorFloat-32 (TF32) precision.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Box -->
+    <div class="rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/60 via-slate-900 to-slate-950 p-8 text-center space-y-4">
+      <h2 class="text-2xl font-bold text-white">Ready to Size Your Next Model Deployment?</h2>
+      <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
+        Switch between presets, configure context length, test QLoRA adapters, and find the lowest cost cloud GPU in seconds.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <a
+          href="/#calculator"
+          class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all"
+        >
+          Open VRAM Calculator
+        </a>
+        <a
+          href="/contact"
+          class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-colors"
+        >
+          Submit Hardware Benchmark
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,269 @@
+---
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title = 'GPUCalc — AI Model VRAM & Cloud GPU Cost Estimator',
+  description = 'Real-time VRAM calculator and live cloud GPU cost comparison for LLMs, Diffusion models, and fine-tuning across RunPod, Lambda Labs, Vast.ai, AWS, and GCP.',
+  image = '/og-image.png',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.ai');
+---
+
+<!doctype html>
+<html lang="en" class="dark scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Inline script to prevent theme flash -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+          return 'light';
+        }
+        return 'dark';
+      })();
+
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="GPU VRAM calculator, LLM memory requirement, cloud GPU pricing, RunPod pricing, Lambda Labs vs AWS, DeepSeek VRAM, Llama 3 70B GPU, QLoRA memory calculator, H100 cost, RTX 4090 cloud rental" />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={image} />
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" is:inline>
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "GPUCalc",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Interactive AI Model VRAM & Cloud GPU Cost Estimation Engine."
+      }
+    </script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
+    <!-- Background Ambient Glow & Grid -->
+    <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-tr from-indigo-600/15 via-violet-600/10 to-cyan-500/10 blur-[130px] rounded-full"></div>
+      <div class="absolute top-[800px] -left-40 w-[600px] h-[400px] bg-purple-600/10 blur-[120px] rounded-full"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b10_1px,transparent_1px),linear-gradient(to_bottom,#1e293b10_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all">
+            <div class="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
+              <svg class="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                <rect x="9" y="9" width="6" height="6"></rect>
+                <path d="M9 1v3"></path>
+                <path d="M15 1v3"></path>
+                <path d="M9 20v3"></path>
+                <path d="M15 20v3"></path>
+                <path d="M20 9h3"></path>
+                <path d="M20 14h3"></path>
+                <path d="M1 9h3"></path>
+                <path d="M1 14h3"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
+              GPU<span class="text-indigo-400">Calc</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono font-normal">
+                v2.6
+              </span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono leading-none">
+              VRAM & Cloud Cost Lab
+            </span>
+          </div>
+        </a>
+
+        <!-- Desktop Nav Links -->
+        <nav class="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
+          <a href="/#calculator" class="hover:text-indigo-400 transition-colors">VRAM Sizer</a>
+          <a href="/#pricing-matrix" class="hover:text-indigo-400 transition-colors">Live GPU Matrix</a>
+          <a href="/#methodology" class="hover:text-indigo-400 transition-colors">Methodology</a>
+          <a href="/about" class="hover:text-indigo-400 transition-colors">About</a>
+          <a href="/contact" class="hover:text-indigo-400 transition-colors">Contact</a>
+        </nav>
+
+        <!-- Right Actions: Theme Toggle & CTA -->
+        <div class="hidden sm:flex items-center gap-3">
+          <ThemeToggle />
+          <a
+            href="/#pricing-matrix"
+            class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all"
+          >
+            Compare Rates
+          </a>
+        </div>
+
+        <!-- Mobile Hamburger Button & Mobile Theme Toggle -->
+        <div class="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            id="mobile-menu-btn"
+            class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white focus:outline-none"
+            aria-label="Open mobile navigation menu"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-2xl px-4 py-4 space-y-3">
+        <a href="/#calculator" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">VRAM Sizer</a>
+        <a href="/#pricing-matrix" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Live GPU Matrix</a>
+        <a href="/#methodology" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Formulas & Math</a>
+        <a href="/about" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">About GPUCalc</a>
+        <a href="/contact" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Contact & Feedback</a>
+        <a href="/privacy" class="block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400">Privacy Policy</a>
+        <div class="pt-2">
+          <a
+            href="/#pricing-matrix"
+            class="block text-center py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-md"
+          >
+            Compare Cloud Rates
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950/90 text-xs text-slate-400 mt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div class="space-y-3 sm:col-span-2 md:col-span-2">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                G
+              </div>
+              <span class="font-bold text-slate-100 text-sm">GPUCalc / VRAM Cost Lab</span>
+            </div>
+            <p class="text-slate-400 text-xs max-w-md">
+              The high-accuracy GPU memory sizing engine and live multi-cloud cost calculator for AI engineers, researchers, and infra architects.
+            </p>
+            <div class="flex flex-wrap items-center gap-3 text-slate-500 text-xs font-mono pt-1">
+              <span>NVIDIA Blackwell B200</span>
+              <span>•</span>
+              <span>Hopper H100/H200</span>
+              <span>•</span>
+              <span>Ada Lovelace</span>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-semibold text-slate-200 mb-3 uppercase tracking-wider text-[11px]">Pages & Tools</h4>
+            <ul class="space-y-2 text-xs">
+              <li><a href="/#calculator" class="hover:text-indigo-400 transition-colors">VRAM Sizer Calculator</a></li>
+              <li><a href="/#pricing-matrix" class="hover:text-indigo-400 transition-colors">Cloud GPU Price Matrix</a></li>
+              <li><a href="/#methodology" class="hover:text-indigo-400 transition-colors">Methodology & Formulas</a></li>
+              <li><a href="/about" class="hover:text-indigo-400 transition-colors">About GPUCalc</a></li>
+              <li><a href="/contact" class="hover:text-indigo-400 transition-colors">Contact & Feedback</a></li>
+              <li><a href="/privacy" class="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-semibold text-slate-200 mb-3 uppercase tracking-wider text-[11px]">Cloud Providers</h4>
+            <ul class="space-y-2 text-xs">
+              <li><a href="https://runpod.io" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">RunPod Cloud</a></li>
+              <li><a href="https://lambdalabs.com" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">Lambda Labs GPU Cloud</a></li>
+              <li><a href="https://vast.ai" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">Vast.ai Marketplace</a></li>
+              <li><a href="https://aws.amazon.com/ec2/instance-types/p5/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">AWS EC2 Instances</a></li>
+              <li><a href="https://cloud.google.com/compute/gpus-pricing" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">GCP Compute Engine</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
+          <p>© {new Date().getFullYear()} GPUCalc. Open-source tools for the AI community.</p>
+          <div class="flex flex-wrap items-center gap-4">
+            <a href="/about" class="hover:text-slate-400 transition-colors">About</a>
+            <a href="/contact" class="hover:text-slate-400 transition-colors">Contact</a>
+            <a href="/privacy" class="hover:text-slate-400 transition-colors">Privacy Policy</a>
+            <a href="/404" class="hover:text-slate-400 transition-colors">Status (404)</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Mobile Menu Toggle Script -->
+    <script is:inline>
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      if (menuBtn && mobileMenu) {
+        menuBtn.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+      }
+    </script>
+  </body>
+</html>
