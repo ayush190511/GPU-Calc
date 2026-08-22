@@ -105,7 +105,8 @@ html.light .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
   border-color: #e2e8f0 !important;
 }
 
-/* High-Contrast Typography in Light Mode */
+/* High-Contrast Typography in Light Mode for headings and page text */
+html.light .text-white,
 html.light .text-slate-100 {
   color: #0f172a !important;
 }
@@ -176,8 +177,18 @@ html.light .text-rose-300 {
 }
 
 /* =========================================================================
-   BUTTONS & ACTIVE PILLS: ENSURE PURE WHITE TEXT ON DARK ACCENTS
+   BUTTONS & ACTIVE PILLS: PRESERVE PURE WHITE TEXT ON DARK ACCENTS
    ========================================================================= */
+html.light button.bg-indigo-600,
+html.light button.bg-indigo-600 *,
+html.light a.bg-indigo-600,
+html.light a.bg-indigo-600 *,
+html.light button.bg-indigo-700,
+html.light button.bg-indigo-700 *,
+html.light button.bg-violet-600,
+html.light button.bg-violet-600 *,
+html.light button.bg-purple-600,
+html.light button.bg-purple-600 *,
 html.light .bg-indigo-600,
 html.light .bg-indigo-600 *,
 html.light .bg-indigo-700,
@@ -186,16 +197,8 @@ html.light .bg-violet-600,
 html.light .bg-violet-600 *,
 html.light .bg-purple-600,
 html.light .bg-purple-600 *,
-html.light button.bg-indigo-600,
-html.light button.bg-indigo-600 *,
-html.light a.bg-indigo-600,
-html.light a.bg-indigo-600 *,
-html.light [class*="bg-indigo-600"],
-html.light [class*="bg-indigo-600"] *,
-html.light [class*="bg-violet-600"],
-html.light [class*="bg-violet-600"] *,
-html.light [class*="bg-purple-600"],
-html.light [class*="bg-purple-600"] * {
+html.light #scroll-to-top,
+html.light #scroll-to-top * {
   color: #ffffff !important;
 }
 
