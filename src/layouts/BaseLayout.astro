@@ -101,48 +101,40 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
     </script>
   </head>
   <body class="font-sans antialiased min-h-screen flex flex-col">
-    <!-- Background Ambient Glow & Grid -->
+    <!-- Background Ambient Grid -->
     <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-tr from-indigo-600/20 via-violet-600/15 to-cyan-500/15 blur-[130px] rounded-full"></div>
-      <div class="absolute top-[800px] -left-40 w-[600px] h-[400px] bg-purple-600/15 blur-[120px] rounded-full"></div>
-      <div class="absolute inset-0 bg-grid-pattern"></div>
+      <div class="absolute inset-0 bg-grid-pattern opacity-60"></div>
     </div>
 
     <!-- Navigation Header -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/85 border-b border-slate-800/80 transition-colors">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <!-- Solid High-Contrast Logo -->
-        <a href="/" class="flex items-center gap-3 group">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-400 p-[1.5px] shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/50 transition-all duration-300">
-            <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center relative overflow-hidden">
-              <!-- Solid Microchip Icon SVG -->
-              <svg class="w-6 h-6 text-indigo-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="4" width="16" height="16" rx="2" fill="#4F46E5" fill-opacity="0.2"></rect>
-                <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="#6366F1"></rect>
-                <path d="M4 9H2M4 15H2M20 9H22M20 15H22M9 4V2M15 4V2M9 20V22M15 20V22" stroke="#38BDF8"></path>
-              </svg>
-            </div>
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-neutral-950/80 border-b border-neutral-800/80 transition-colors">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        <!-- Minimalist High-Contrast Logo -->
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center transition-colors group-hover:border-neutral-700">
+            <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+              <rect x="9" y="9" width="6" height="6"></rect>
+              <path d="M4 9H2M4 15H2M20 9H22M20 15H22M9 4V2M15 4V2M9 20V22M15 20V22"></path>
+            </svg>
           </div>
-          <div class="flex flex-col">
-            <span class="font-black text-lg tracking-tight text-white flex items-center gap-1.5 leading-tight">
-              GPU<span class="text-indigo-400">Calc</span>
-              <span class="text-[9px] px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-300 font-mono font-bold border border-indigo-500/30">
-                PRO
-              </span>
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-sm tracking-tight text-white leading-none">
+              GPU<span class="text-neutral-400">Calc</span>
             </span>
-            <span class="text-[10px] text-slate-400 font-mono tracking-wide">
-              VRAM & Cloud Cost Lab
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-neutral-800/80 text-neutral-400 font-mono border border-neutral-700/60 leading-none">
+              vram
             </span>
           </div>
         </a>
 
         <!-- Desktop Nav Links -->
-        <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300">
-          <a href="/#calculator" class="nav-link hover:text-indigo-400 transition-colors">VRAM Sizer</a>
-          <a href="/#pricing-matrix" class="nav-link hover:text-indigo-400 transition-colors">Live GPU Matrix</a>
-          <a href="/#methodology" class="nav-link hover:text-indigo-400 transition-colors">Methodology</a>
-          <a href="/about" class={`nav-link transition-colors ${Astro.url.pathname.startsWith('/about') ? 'text-indigo-400 font-bold' : 'hover:text-indigo-400'}`}>About</a>
-          <a href="/contact" class={`nav-link transition-colors ${Astro.url.pathname.startsWith('/contact') ? 'text-indigo-400 font-bold' : 'hover:text-indigo-400'}`}>Contact</a>
+        <nav class="hidden md:flex items-center gap-5 text-xs font-medium text-neutral-400">
+          <a href="/#calculator" class="hover:text-white transition-colors">VRAM Sizer</a>
+          <a href="/#pricing-matrix" class="hover:text-white transition-colors">GPU Matrix</a>
+          <a href="/#methodology" class="hover:text-white transition-colors">Methodology</a>
+          <a href="/about" class={`transition-colors ${Astro.url.pathname.startsWith('/about') ? 'text-white font-semibold' : 'hover:text-white'}`}>About</a>
+          <a href="/contact" class={`transition-colors ${Astro.url.pathname.startsWith('/contact') ? 'text-white font-semibold' : 'hover:text-white'}`}>Contact</a>
         </nav>
 
         <!-- Right Desktop Actions -->
@@ -150,7 +142,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
           <ThemeToggle />
           <a
             href="/#pricing-matrix"
-            class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition-all hover:scale-105"
+            class="px-3.5 py-1.5 rounded-lg bg-white text-neutral-950 hover:bg-neutral-200 text-xs font-semibold transition-colors dark:bg-white dark:text-neutral-950"
           >
             Compare Rates
           </a>
@@ -164,13 +156,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
           <button
             type="button"
             id="mobile-menu-btn"
-            class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:text-white flex flex-col justify-center items-center w-10 h-10 gap-1.5 focus:outline-none cursor-pointer transition-colors"
+            class="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white flex flex-col justify-center items-center w-9 h-9 gap-1.5 focus:outline-none cursor-pointer transition-colors"
             aria-label="Toggle navigation menu"
             aria-expanded="false"
           >
-            <span id="ham-bar-1" class="w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
-            <span id="ham-bar-2" class="w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
-            <span id="ham-bar-3" class="w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
+            <span id="ham-bar-1" class="w-4 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
+            <span id="ham-bar-2" class="w-4 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
+            <span id="ham-bar-3" class="w-4 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center"></span>
           </button>
         </div>
       </div>
@@ -178,18 +170,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
       <!-- Animated Mobile Navigation Drawer -->
       <div
         id="mobile-menu"
-        class="max-h-0 opacity-0 overflow-hidden transition-all duration-300 ease-in-out md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-2xl px-4 space-y-3"
+        class="max-h-0 opacity-0 overflow-hidden transition-all duration-300 ease-in-out md:hidden border-t border-neutral-800 bg-neutral-950/95 backdrop-blur-2xl px-4 space-y-3"
       >
-        <a href="/#calculator" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">VRAM Sizer Calculator</a>
-        <a href="/#pricing-matrix" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Live GPU Matrix</a>
-        <a href="/#methodology" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Formulas & Math</a>
-        <a href="/about" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">About GPUCalc</a>
-        <a href="/contact" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Contact & Feedback</a>
-        <a href="/privacy" class="mobile-nav-link block py-2 text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">Privacy Policy</a>
+        <a href="/#calculator" class="mobile-nav-link block py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors">VRAM Sizer Calculator</a>
+        <a href="/#pricing-matrix" class="mobile-nav-link block py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors">Live GPU Matrix</a>
+        <a href="/#methodology" class="mobile-nav-link block py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors">Formulas & Math</a>
+        <a href="/about" class="mobile-nav-link block py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors">About GPUCalc</a>
+        <a href="/contact" class="mobile-nav-link block py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors">Contact & Feedback</a>
+        <a href="/privacy" class="mobile-nav-link block py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors">Privacy Policy</a>
         <div class="pt-2 pb-4">
           <a
             href="/#pricing-matrix"
-            class="mobile-nav-link block text-center py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-xs shadow-md"
+            class="mobile-nav-link block text-center py-2.5 rounded-lg bg-white text-neutral-950 font-semibold text-xs transition-colors"
           >
             Compare Cloud Rates
           </a>
@@ -206,28 +198,25 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
     <ScrollToTop />
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800/80 bg-slate-950/95 text-xs text-slate-400 mt-24 transition-colors">
-      <!-- Top Glow Banner inside Footer -->
-      <div class="border-b border-slate-800/60 bg-gradient-to-r from-indigo-950/20 via-slate-900/40 to-cyan-950/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-3 text-[11px]">
-          <div class="flex items-center gap-2.5">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span class="font-medium text-slate-300">
+    <footer class="border-t border-neutral-800 bg-neutral-950 text-xs text-neutral-400 mt-20 transition-colors">
+      <!-- Top Minimal Banner inside Footer -->
+      <div class="border-b border-neutral-800/80 bg-neutral-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3 text-[11px]">
+          <div class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-neutral-400"></span>
+            <span class="font-medium text-neutral-300">
               Live Cloud GPU Pricing Matrix Active • 8 Clouds Indexed • 100% Client-Side Engine
             </span>
           </div>
 
-          <div class="flex items-center gap-2.5 text-slate-400">
+          <div class="flex items-center gap-2.5 text-neutral-400">
             <a
               href="https://github.com/ayush190511/GPU-Calc"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white transition-all group"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 hover:text-white transition-all group"
             >
-              <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
               </svg>
               <span>GitHub</span>
@@ -237,9 +226,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
               href="https://www.linkedin.com/in/ayush190511/"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white transition-all group"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 hover:text-white transition-all group"
             >
-              <svg class="w-3.5 h-3.5 text-cyan-400 group-hover:text-cyan-300 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
               </svg>
               <span>LinkedIn</span>
@@ -253,21 +242,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           <!-- Brand & Architecture Column -->
           <div class="space-y-4 sm:col-span-2 md:col-span-2">
-            <a href="/" class="flex items-center gap-3 group">
-              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-400 p-[1.2px] shadow-md shadow-indigo-600/30 flex items-center justify-center group-hover:shadow-indigo-500/50 transition-all duration-300">
-                <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center relative overflow-hidden">
-                  <svg class="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="4" y="4" width="16" height="16" rx="2" fill="#4F46E5" fill-opacity="0.2"></rect>
-                    <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="#6366F1"></rect>
-                    <path d="M4 9H2M4 15H2M20 9H22M20 15H22M9 4V2M15 4V2M9 20V22M15 20V22" stroke="#38BDF8"></path>
-                  </svg>
-                </div>
+            <a href="/" class="flex items-center gap-2.5 group">
+              <div class="w-7 h-7 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center transition-colors group-hover:border-neutral-700">
+                <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                  <rect x="9" y="9" width="6" height="6"></rect>
+                  <path d="M4 9H2M4 15H2M20 9H22M20 15H22M9 4V2M15 4V2M9 20V22M15 20V22"></path>
+                </svg>
               </div>
-              <div class="flex flex-col">
-                <span class="font-extrabold text-slate-100 text-base leading-tight group-hover:text-indigo-400 transition-colors">
-                  GPU<span class="text-indigo-400">Calc</span>
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-sm tracking-tight text-white leading-none">
+                  GPU<span class="text-neutral-400">Calc</span>
                 </span>
-                <span class="text-[10px] text-slate-400 font-mono mt-0.5">AI Model VRAM & Cloud Cost Lab</span>
               </div>
             </a>
 
@@ -292,60 +278,60 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gpucalc.
             <h4 class="font-bold text-slate-200 mb-3.5 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
               <span>Model Sizers</span>
             </h4>
-            <ul class="space-y-2 text-xs">
-              <li><a href="/calculator/llama-3-3-70b" class="hover:text-indigo-400 transition-colors">Llama 3.3 (70B)</a></li>
-              <li><a href="/calculator/deepseek-r1-671b" class="hover:text-indigo-400 transition-colors">DeepSeek-R1 (671B)</a></li>
-              <li><a href="/calculator/qwen-2-5-32b" class="hover:text-indigo-400 transition-colors">Qwen 2.5 (32B)</a></li>
-              <li><a href="/calculator/mistral-large-2-123b" class="hover:text-indigo-400 transition-colors">Mistral Large 2 (123B)</a></li>
-              <li><a href="/calculator/gemma-2-27b" class="hover:text-indigo-400 transition-colors">Gemma 2 (27B)</a></li>
-              <li><a href="/calculator/flux-1-schnell" class="hover:text-indigo-400 transition-colors">FLUX.1 Diffusion (12B)</a></li>
+            <ul class="space-y-2 text-xs text-neutral-400">
+              <li><a href="/calculator/llama-3-3-70b" class="hover:text-white transition-colors">Llama 3.3 (70B)</a></li>
+              <li><a href="/calculator/deepseek-r1-671b" class="hover:text-white transition-colors">DeepSeek-R1 (671B)</a></li>
+              <li><a href="/calculator/qwen-2-5-32b" class="hover:text-white transition-colors">Qwen 2.5 (32B)</a></li>
+              <li><a href="/calculator/mistral-large-2-123b" class="hover:text-white transition-colors">Mistral Large 2 (123B)</a></li>
+              <li><a href="/calculator/gemma-2-27b" class="hover:text-white transition-colors">Gemma 2 (27B)</a></li>
+              <li><a href="/calculator/flux-1-schnell" class="hover:text-white transition-colors">FLUX.1 Diffusion (12B)</a></li>
             </ul>
           </div>
 
           <!-- Tools & Reference -->
           <div>
-            <h4 class="font-bold text-slate-200 mb-3.5 uppercase tracking-wider text-[11px]">
+            <h4 class="font-bold text-neutral-200 mb-3.5 uppercase tracking-wider text-[11px]">
               <span>Tools & Reference</span>
             </h4>
-            <ul class="space-y-2 text-xs">
-              <li><a href="/#calculator" class="hover:text-indigo-400 transition-colors">Interactive VRAM Sizer</a></li>
-              <li><a href="/#pricing-matrix" class="hover:text-indigo-400 transition-colors">Live Cloud Price Matrix</a></li>
-              <li><a href="/#faq" class="hover:text-indigo-400 transition-colors">Technical FAQ & Math Hub</a></li>
-              <li><a href="/#methodology" class="hover:text-indigo-400 transition-colors">Formulas & Benchmarks</a></li>
-              <li><a href="/about" class="hover:text-indigo-400 transition-colors">Engineering & About</a></li>
-              <li><a href="/contact" class="hover:text-indigo-400 transition-colors">Submit Benchmarks</a></li>
+            <ul class="space-y-2 text-xs text-neutral-400">
+              <li><a href="/#calculator" class="hover:text-white transition-colors">Interactive VRAM Sizer</a></li>
+              <li><a href="/#pricing-matrix" class="hover:text-white transition-colors">Live Cloud Price Matrix</a></li>
+              <li><a href="/#faq" class="hover:text-white transition-colors">Technical FAQ & Math Hub</a></li>
+              <li><a href="/#methodology" class="hover:text-white transition-colors">Formulas & Benchmarks</a></li>
+              <li><a href="/about" class="hover:text-white transition-colors">Engineering & About</a></li>
+              <li><a href="/contact" class="hover:text-white transition-colors">Submit Benchmarks</a></li>
             </ul>
           </div>
 
           <!-- Cloud GPU Providers -->
           <div>
-            <h4 class="font-bold text-slate-200 mb-3.5 uppercase tracking-wider text-[11px]">
+            <h4 class="font-bold text-neutral-200 mb-3.5 uppercase tracking-wider text-[11px]">
               <span>Cloud Providers</span>
             </h4>
-            <ul class="space-y-2 text-xs">
-              <li><a href="https://runpod.io" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors inline-flex items-center gap-1">RunPod Cloud ↗</a></li>
-              <li><a href="https://lambdalabs.com" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors inline-flex items-center gap-1">Lambda Labs ↗</a></li>
-              <li><a href="https://vast.ai" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors inline-flex items-center gap-1">Vast.ai Marketplace ↗</a></li>
-              <li><a href="https://aws.amazon.com/ec2/instance-types/p5/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors inline-flex items-center gap-1">AWS EC2 (P5/G5) ↗</a></li>
-              <li><a href="https://cloud.google.com/compute/gpus-pricing" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors inline-flex items-center gap-1">GCP Compute ↗</a></li>
+            <ul class="space-y-2 text-xs text-neutral-400">
+              <li><a href="https://runpod.io" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors inline-flex items-center gap-1">RunPod Cloud ↗</a></li>
+              <li><a href="https://lambdalabs.com" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors inline-flex items-center gap-1">Lambda Labs ↗</a></li>
+              <li><a href="https://vast.ai" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors inline-flex items-center gap-1">Vast.ai Marketplace ↗</a></li>
+              <li><a href="https://aws.amazon.com/ec2/instance-types/p5/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors inline-flex items-center gap-1">AWS EC2 (P5/G5) ↗</a></li>
+              <li><a href="https://cloud.google.com/compute/gpus-pricing" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors inline-flex items-center gap-1">GCP Compute ↗</a></li>
             </ul>
           </div>
         </div>
 
         <!-- Bottom Copyright & Privacy Notice Bar -->
-        <div class="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+        <div class="pt-6 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-500">
           <div class="flex flex-wrap items-center gap-3">
             <span>© {new Date().getFullYear()} GPUCalc. Open-source tools for AI engineers.</span>
             <span class="hidden sm:inline">•</span>
-            <span class="text-emerald-400 font-mono text-[10px]">Zero Telemetry & 100% Client-Side</span>
+            <span class="text-neutral-400 font-mono text-[10px]">Zero Telemetry & 100% Client-Side</span>
           </div>
 
           <div class="flex flex-wrap items-center gap-5">
-            <a href="/about" class="hover:text-slate-300 transition-colors">About</a>
-            <a href="/contact" class="hover:text-slate-300 transition-colors">Contact</a>
-            <a href="/privacy" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
-            <a href="https://github.com/ayush190511/GPU-Calc" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition-colors">GitHub</a>
-            <a href="https://www.linkedin.com/in/ayush190511/" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition-colors">LinkedIn</a>
+            <a href="/about" class="hover:text-neutral-300 transition-colors">About</a>
+            <a href="/contact" class="hover:text-neutral-300 transition-colors">Contact</a>
+            <a href="/privacy" class="hover:text-neutral-300 transition-colors">Privacy Policy</a>
+            <a href="https://github.com/ayush190511/GPU-Calc" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-300 transition-colors">GitHub</a>
+            <a href="https://www.linkedin.com/in/ayush190511/" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-300 transition-colors">LinkedIn</a>
           </div>
         </div>
       </div>

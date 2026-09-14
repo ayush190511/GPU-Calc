@@ -205,49 +205,49 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
   }, [config, selectedPresetId]);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       {/* Top Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-neutral-900/40 border border-neutral-800">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-xs font-semibold text-slate-300">
-            Interactive VRAM Sizer & Live Cloud Pricing Matrix Active
+          <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" />
+          <span className="text-xs font-medium text-neutral-300">
+            Real-time VRAM Sizing & Cloud Matrix
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleShareLink}
-            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-2.5 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             title="Copy shareable permalink with current configuration"
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Share2 className="w-3.5 h-3.5 text-indigo-400" />}
-            <span>{copiedLink ? 'Link Copied!' : 'Share Config'}</span>
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-neutral-200" /> : <Share2 className="w-3.5 h-3.5 text-neutral-400" />}
+            <span>{copiedLink ? 'Link Copied' : 'Share'}</span>
           </button>
 
           <button
             onClick={() => setShowCliSnippet(!showCliSnippet)}
-            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-2.5 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{showCliSnippet ? 'Hide CLI' : 'Deploy Command'}</span>
+            <Terminal className="w-3.5 h-3.5 text-neutral-400" />
+            <span>{showCliSnippet ? 'Hide CLI' : 'Deploy CLI'}</span>
           </button>
 
           <button
             onClick={handleCopySummary}
-            className="px-3 py-1.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm shadow-indigo-600/20 cursor-pointer"
+            className="px-2.5 py-1.5 rounded-lg bg-white text-neutral-950 hover:bg-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer dark:bg-white dark:text-neutral-950"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? 'Copied Specs!' : 'Copy Summary'}</span>
+            {copied ? <Check className="w-3.5 h-3.5 text-neutral-900" /> : <Copy className="w-3.5 h-3.5 text-neutral-900" />}
+            <span>{copied ? 'Copied!' : 'Copy Summary'}</span>
           </button>
         </div>
       </div>
 
       {/* CLI Launch Snippet (Collapsible) */}
       {showCliSnippet && (
-        <div className="rounded-2xl border border-cyan-500/30 bg-slate-950/90 p-4 font-mono text-xs text-cyan-300 space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-[11px]">
-            <span>Generated Launch Command (vLLM / HuggingFace Accelerate):</span>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-3.5 font-mono text-xs text-neutral-300 space-y-2">
+          <div className="flex items-center justify-between text-neutral-400 text-[11px]">
+            <span>Generated Launch Command (vLLM / Accelerate):</span>
             <button
               onClick={() => {
                 navigator.clipboard.writeText(cliSnippet);
@@ -259,7 +259,7 @@ Recommended Allocation: ${breakdown.recommendedVramGb} GB (with 15% safety buffe
               <Copy className="w-3 h-3" /> Copy
             </button>
           </div>
-          <pre className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 overflow-x-auto text-slate-100">
+          <pre className="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 overflow-x-auto text-neutral-200">
             {cliSnippet}
           </pre>
         </div>
